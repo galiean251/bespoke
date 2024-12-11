@@ -13,5 +13,8 @@ I wrote this as a quick and easy way to make *Fedora Workstation* or *Fedora Sil
  - Switch into the cloned directory using `cd ./bespoke/`
  - Remember to make the script executable with `chmod +x bespoke.sh`
 
+## Using Debian?
+This script has a Debian-oriented version called [Bender](https://github.com/seangalie/bender) for Debian 12 installations.
+
 ## License
 *Bespoke* is released under the [MIT License](https://opensource.org/licenses/MIT).
