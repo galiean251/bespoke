@@ -454,7 +454,7 @@ bespoke-distro() {
 bespoke-version() {
     echo "\nChecking your version of Fedora...\n"
     . /etc/os-release
-    if [ "$VERSION_ID" >= 40 ]; then
+    if [ "$VERSION_ID" >= "40" ]; then
         bespoke-atomic;
     else
         echo "\nThis script is not compatible with your distribution."
