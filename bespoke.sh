@@ -255,19 +255,19 @@ bespoke-appinstalls() {
 # Start the script with a nice ASCII logo and an 'are you sure?' prompt'
 bespoke-start() {
     ASCIILOGO='
-        ++----------------------------------------------++
-        ++----------------------------------------------++
-        ||                                              ||
-        ||    ___   ____  __   ___   ___   _     ____   ||
-        ||   | |_) | |_  ( (` | |_) / / \ | |_/ | |_    ||
-        ||   |_|_) |_|__ _)_) |_|   \_\_/ |_| \ |_|__   ||
-        ||                                              ||
-        ||                                              ||
-        ++----------------------------------------------++
-        ++----------------------------------------------++
+        \033[93;1m++----------------------------------------------++\033[0m
+        \033[93;1m+\033[33;1m+----------------------------------------------+\033[93;1m+\033[0m
+        \033[93;1m|\033[33;1m|                                              |\033[93;1m|\033[0m
+        \033[93;1m|\033[33;1m|   \033[96;1m ___   ____  __   ___   ___   _     ____\033[33;1m   |\033[93;1m|\033[0m
+        \033[93;1m|\033[33;1m|   \033[96;1m| |_) | |_  ( (` | |_) / / \ | |_/ | |_ \033[33;1m   |\033[93;1m|\033[0m
+        \033[93;1m|\033[33;1m|   \033[96;1m|_|_) |_|__ _)_) |_|   \_\_/ |_| \ |_|__\033[33;1m   |\033[93;1m|\033[0m
+        \033[93;1m|\033[33;1m|                                              |\033[93;1m|\033[0m
+        \033[93;1m|\033[33;1m|                                              |\033[93;1m|\033[0m
+        \033[93;1m+\033[33;1m+----------------------------------------------+\033[93;1m+\033[0m
+        \033[93;1m++----------------------------------------------++\033[0m
         '
     sudo clear
-    echo -e "\033[36;1m$ASCIILOGO\033[0m"
+    echo -e "$ASCIILOGO"
     echo -e "\nThe BESPOKE script is for a fresh \033[94;1mFedora\033[0m Workstation \033[94;1m40\033[0m or \033[94;1m41\033[0m installs only!"
     echo -e "\nIf you don't want to continue, press \033[31mControl-C\033[0m now to \033[31mexit\033[0m the script."
     sleep 2
@@ -526,7 +526,7 @@ if [ "$XDG_CURRENT_DESKTOP" = "" ]
 fi
 
 USERDESKTOP=${USERDESKTOP,,}  # Convert to lower case
-echo -e "\n\nThe script has detected \033[93m$USERDESKTOP\033[0m as your current desktop environment..."
+echo -e "\nThe script has detected \033[93m$USERDESKTOP\033[0m as your current desktop environment..."
 sleep 1
 
 if [ "$USERDESKTOP" = "gnome" ]; then
