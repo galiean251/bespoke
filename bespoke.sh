@@ -39,10 +39,8 @@ bespoke-install() {
     if [ "$ATOMICFEDORA" = true ]; then
         sudo rpm-ostree install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
         sudo rpm-ostree update --uninstall $(rpm -q rpmfusion-free-release) --uninstall $(rpm -q rpmfusion-nonfree-release) --install rpmfusion-free-release --install rpmfusion-nonfree-release
-        sudo rpm-ostree install -y distrobox stacer rclone lm_sensors unzip p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng curl git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat wget zsh libavcodec-freeworld grubby julietaula-montserrat-fonts
-        sudo rpm-ostree install -y pwgen gpg 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts julietaula-montserrat-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts
-        sudo rpm-ostree repos add --enable kwizart/fedy
-        sudo rpm-ostree install fedy
+        sudo rpm-ostree install -y distrobox stacer rclone lm_sensors p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng curl git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat wget zsh libavcodec-freeworld grubby julietaula-montserrat-fonts
+        sudo rpm-ostree install -y pwgen 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts julietaula-montserrat-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts
     else
         sudo rpm -Uvh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
         sudo rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
@@ -50,17 +48,17 @@ bespoke-install() {
         sudo dnf install -y pwgen gpg 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts julietaula-montserrat-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts
         sudo dnf copr enable kwizart/fedy
         sudo dnf install -y fedy
-    fi
-    if [ "$VERSION_ID" = "40" ]; then
-        sudo dnf install -y dnf5 dnf5-plugins
-        sudo dnf group upgrade -y 'core' 'multimedia' 'sound-and-video' --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
-        sudo dnf swap 'ffmpeg-free' 'ffmpeg' --allowerasing
-        sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel ffmpeg gstreamer-ffmpeg
-        sudo dnf install -y lame\* --exclude=lame-devel
-        sudo dnf group upgrade -y --with-optional Multimedia
-        sudo dnf5 install -y ffmpeg ffmpeg-libs libva libva-utils
-        sudo dnf config-manager --set-enabled fedora-cisco-openh264
-        sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
+        if [ "$VERSION_ID" = "40" ]; then
+            sudo dnf install -y dnf5 dnf5-plugins
+            sudo dnf group upgrade -y 'core' 'multimedia' 'sound-and-video' --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
+            sudo dnf swap 'ffmpeg-free' 'ffmpeg' --allowerasing
+            sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel ffmpeg gstreamer-ffmpeg
+            sudo dnf install -y lame\* --exclude=lame-devel
+            sudo dnf group upgrade -y --with-optional Multimedia
+            sudo dnf install -y ffmpeg ffmpeg-libs libva libva-utils
+            sudo dnf config-manager --set-enabled fedora-cisco-openh264
+            sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
+        fi
     fi
     echo -e "\n\033[1mAdding some kernel arguments...\033[0m\n"
     sleep 1
@@ -122,17 +120,17 @@ bespoke-install() {
     sleep 1
     flatpak remote-add --user flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
     flatpak update
-    flatpak install -y flathub com.mattjakeman.ExtensionManager
+    flatpak install -y flathub com.mattjakeman.ExtensionManager org.localsend.localsend_app
     echo -e "\n\033[1mInstalling Google Chrome and core GNOME applications...\033[0m\n"
     sleep 1
     if [ "$ATOMICFEDORA" = true ]; then
         flatpak install -y flathub com.google.Chrome org.gnome.DejaDup
-        sudo rpm-ostree install gnome-tweaks gnome-extensions-app flatseal
+        sudo rpm-ostree install gnome-tweaks gnome-extensions-app flatseal kitty
     else
         sudo dnf install -y fedora-workstation-repositories
         sudo dnf config-manager --set-enabled google-chrome
         sudo dnf install -y google-chrome-stable
-        sudo dnf install -y gnome-tweaks gnome-extensions-app flatseal deja-dup
+        sudo dnf install -y gnome-tweaks gnome-extensions-app flatseal deja-dup kitty
     fi
 }
 
@@ -497,12 +495,14 @@ bespoke-appoptions() {
 
 # Figure out if this is regular Fedora or an Atomic spin like Silverblue
 bespoke-atomic() {
-    echo -e "\nChecking if you are running an \033[94mAtomic\033[0m desktop...\n"
+    echo -e "\nChecking if you are running an \033[35mAtomic\033[0m desktop...\n"
     sleep 1
     if [ ! -f /run/ostree-booted ]; then
         ATOMICFEDORA=false
+        echo -e "\nYou are not running an \033[95mAtomic\033[0m version of Fedora.\n"
     else
         ATOMICFEDORA=true
+        echo -e "\nYou are running an \033[95mAtomic\033[0m version of Fedora!\n"
     fi
 }
 
