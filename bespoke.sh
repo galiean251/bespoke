@@ -40,22 +40,22 @@ bespoke-install() {
         sudo rpm-ostree install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
         sudo rpm-ostree update --uninstall $(rpm -q rpmfusion-free-release) --uninstall $(rpm -q rpmfusion-nonfree-release) --install rpmfusion-free-release --install rpmfusion-nonfree-release
         sudo rpm-ostree install -y distrobox stacer rclone lm_sensors unzip p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng curl git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat wget zsh libavcodec-freeworld grubby julietaula-montserrat-fonts
-        sudo rpm-ostree install -y 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts julietaula-montserrat-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts
+        sudo rpm-ostree install -y pwgen gpg 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts julietaula-montserrat-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts
     else
         sudo rpm -Uvh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
         sudo rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
         sudo dnf install -y distrobox stacer rclone lm_sensors unzip p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng curl git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat wget zsh libavcodec-freeworld grubby julietaula-montserrat-fonts
-        sudo dnf install -y 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts julietaula-montserrat-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts
+        sudo dnf install -y pwgen gpg 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts julietaula-montserrat-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts
         sudo dnf copr enable kwizart/fedy
         sudo dnf install -y fedy
     fi
     if [ "$VERSION_ID" = "40" ]; then
         sudo dnf install -y dnf5 dnf5-plugins
-        sudo dnf groupupdate 'core' 'multimedia' 'sound-and-video' --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
+        sudo dnf group upgrade -y 'core' 'multimedia' 'sound-and-video' --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
         sudo dnf swap 'ffmpeg-free' 'ffmpeg' --allowerasing
         sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel ffmpeg gstreamer-ffmpeg
         sudo dnf install -y lame\* --exclude=lame-devel
-        sudo dnf group upgrade --with-optional Multimedia
+        sudo dnf group upgrade -y --with-optional Multimedia
         sudo dnf5 install -y ffmpeg ffmpeg-libs libva libva-utils
         sudo dnf config-manager --set-enabled fedora-cisco-openh264
         sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
@@ -231,6 +231,16 @@ bespoke-appinstalls() {
             sudo dnf install -y dropbox nautilus-dropbox sparkleshare
         fi
     fi
+    if [ "$INSTALLCONTAINER" = true ]; then
+        echo -e "\n\033[1mInstalling container and image management packages...\033[0m\n"
+        sleep 1
+        if [ "$ATOMICFEDORA" = true ]; then
+            rpm-ostree install podman-docker docker-compose
+        else
+            sudo dnf install -y podman toolbox podman-docker docker-compose
+        fi
+        flatpak install -y flathub io.podman_desktop.PodmanDesktop com.github.marhkb.Pods
+    fi
     if [ "$INSTALLTAILSCALE" = true ]; then
         echo -e "\n\033[1mInstalling Tailscale...\033[0m\n"
         sleep 1
@@ -343,6 +353,18 @@ bespoke-options() {
             INSTALLSHARING=false
         ;;
     esac
+
+    echo -e "\n\n\nDo you want to install \033[92mcontainer and image management\033[0m packages?"
+    read -n 1 -p "Podman, Docker Compose, and more - (y/n) " answer
+    case ${answer:0:1} in
+        y|Y )
+            INSTALLCONTAINER=true
+        ;;
+        * )
+            INSTALLCONTAINER=false
+        ;;
+    esac
+
 
     echo -e "\n\n\nThis script includes the abiltiy to install the WireGuard-based networking suite\nfrom \033[92mTailscale\033[0m that integrates with both the Linux shell and your desktop\nenvironment.  You will be prompted during the script to login and add the node.\n"
     read -n 1 -p "Do you want to install Tailscale? (y/n) " answer
