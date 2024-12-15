@@ -257,11 +257,11 @@ bespoke-start() {
     echo -e "\nThe BESPOKE script is for a fresh \033[34;1mFedora\033[0 Workstation \033[34;1m40\033[0m or \033[34;1m41\033[0m installs only!"
     echo -e "\nIf you don't want to continue, press \033[31mControl-C\033[0 now to \033[31mexit\033[0 the script."
     sleep 2
-    echo -e "\nA few questions before we begin - this will help the script customize your installation.\n"
+    echo -e "\n\nA few questions before we begin - this will help the script customize your installation.\n"
 }
 
 bespoke-options() {
-    echo -e "\n\nThere are built-in fixes for the CPU Meltdown/Sceptre vulnerabilities that are\nbuilt-into the Linux kernel. If you do not believe you need these fixes, which\ncan negatively affect performance - this script can disable those mitagations.\n"
+    echo -e "\n\n\nThere are built-in fixes for the CPU Meltdown/Sceptre vulnerabilities that are\nbuilt-into the Linux kernel. If you do not believe you need these fixes, which\ncan negatively affect performance - this script can disable those mitagations.\n"
     echo -e "\nShould mitigations for \033[31mIntel 5th-9th Gen CPUs\033[0 be disabled?"
     read -n 1 -p "If you are unsure of what this means, choose N for no. (y/n) " answer
     case ${answer:0:1} in
@@ -273,7 +273,7 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\n\nBy default, Fedora includes a free/open-source version for Intel iGPUs that can\nbe replaced with a higher performance, less-open driver.  It is recommended to\ninstall this package to increase performance for 5th gen platforms and later.\n"
+    echo -e "\n\n\nBy default, Fedora includes a free/open-source version for Intel iGPUs that can\nbe replaced with a higher performance, less-open driver.  It is recommended to\ninstall this package to increase performance for 5th gen platforms and later.\n"
     echo "\nIs this device an \033[31mIntel 5th Gen or later\033[0 with integrated Intel graphics?"
     read -n 1 -p "Choose Y (Yes) if you have a dedicated Intel GPU as well. (y/n) " answer
     case ${answer:0:1} in
@@ -285,7 +285,7 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\n\nBy default, Fedora includes a free/open-source driver for AMD GPUs and iGPUs\nthat can be replaced with an updated package that may offer some increases in\nperformance.  It is recommended if you have AMD hardware to install these packages.\n"
+    echo -e "\n\n\nBy default, Fedora includes a free/open-source driver for AMD GPUs and iGPUs\nthat can be replaced with an updated package that may offer some increases in\nperformance.  It is recommended if you have AMD hardware to install these packages.\n"
     read -n 1 -p "\nDo you have integrated \033[31mAMD graphics\033[0 or an AMD GPU? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -296,7 +296,7 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\n\nBy default, Fedora includes only free/open-source software which excludes some\nproprietary packages released by Nvidia to enable their hardware or the best\nfeatures of their hardware.  It is recommended if you have Nvidia hardware to\ninstall these packages.  Additional setup prompts may appear during installation.\n"
+    echo -e "\n\n\nBy default, Fedora includes only free/open-source software which excludes some\nproprietary packages released by Nvidia to enable their hardware or the best\nfeatures of their hardware.  It is recommended if you have Nvidia hardware to\ninstall these packages.  Additional setup prompts may appear during installation.\n"
     read -n 1 -p "\nDo you have integrated \033[31mNvidia graphics\033[0 or a Nvidia GPU? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -307,7 +307,7 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\n\nThis script includes prompts to install some common, popular packages from either\nthe Fedora/RPM Fusion repositories or Flathub - this is different than some of\nthe default behavior from tools like dnf groups to minimize extra cruft.\n"
+    echo -e "\n\n\nThis script includes prompts to install some common, popular packages from either\nthe \033[34mFedora/RPM Fusion\033[0 repositories or Flathub - this is different than some of\nthe default behavior from tools like dnf groups to minimize extra cruft.\n"
     read -n 1 -p "\nDo you want to choose apps to install? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -318,7 +318,7 @@ bespoke-options() {
         ;;
     esac
 
-    echo "\n\nDo you want to install \033[32mfile sharing platform\033[0 packages?"
+    echo "\n\n\nDo you want to install \033[32mfile sharing platform\033[0 packages?"
     read -n 1 -p "Dropbox, Sparkleshare, and more - (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -329,7 +329,7 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\n\nThis script includes the abiltiy to install the WireGuard-based networking suite\nfrom Tailscale that integrates with both the Linux shell and your desktop\nenvironment.  You will be prompted during the script to login and add the node.\n"
+    echo -e "\n\n\nThis script includes the abiltiy to install the WireGuard-based networking suite\nfrom \033[32mTailscale\033[0 that integrates with both the Linux shell and your desktop\nenvironment.  You will be prompted during the script to login and add the node.\n"
     read -n 1 -p "\nDo you want to install Tailscale? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -343,7 +343,7 @@ bespoke-options() {
 
 bespoke-appoptions() {
     if [ "$INSTALLAPPS" = true ]; then
-        echo -e "\n\nDo you want to install \033[32moffice and productivity\033[0 applications?"
+        echo -e "\n\n\nDo you want to install \033[32moffice and productivity\033[0 applications?"
         read -n 1 -p "LibreOffice, Email, GnuCash, Okular, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -354,7 +354,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install \033[32mpersonal multimedia\033[0 applications?"
+        echo -e "\n\n\nDo you want to install \033[32mpersonal multimedia\033[0 applications?"
         read -n 1 -p "Amberol, Calibre, Celluloid, VLC, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -365,7 +365,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install \033[32mcreative design\033[0 applications?"
+        echo -e "\n\n\nDo you want to install \033[32mcreative design\033[0 applications?"
         read -n 1 -p "Darktable, GIMP, Inkscape, Krita, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -376,7 +376,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install \033[32m3D and video production\033[0 applications?"
+        echo -e "\n\n\nDo you want to install \033[32m3D and video production\033[0 applications?"
         read -n 1 -p "Blender, Kdenlive, OBS, OpenShot, Pitivi, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -387,7 +387,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install \033[32maudio production\033[0 applications?"
+        echo -e "\n\n\nDo you want to install \033[32maudio production\033[0 applications?"
         read -n 1 -p "Ardour, MuseScore, Tenacity, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -398,7 +398,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install \033[32mcoding tools and development\033[0 applications?"
+        echo -e "\n\n\nDo you want to install \033[32mcoding tools and development\033[0 applications?"
         read -n 1 -p "Android Studio, Pulsar, Obsidian, and Visual Studio Code (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -409,7 +409,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install \033[32mGIS and weather\033[0 applications?"
+        echo -e "\n\n\nDo you want to install \033[32mGIS and weather\033[0 applications?"
         read -n 1 -p "Meteo and QGIS (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -420,7 +420,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install \033[32mLLM front-end\033[0 applications?"
+        echo -e "\n\n\nDo you want to install \033[32mLLM front-end\033[0 applications?"
         read -n 1 -p "Alpaca and GPT4All (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -431,7 +431,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install \033[32mgaming platforms\033[0 and packages?"
+        echo -e "\n\n\nDo you want to install \033[32mgaming platforms\033[0 and packages?"
         read -n 1 -p "Steam, Lutris, Wine, Bottles, and more (y/n) " answer
         case ${answer:0:1} in
             y|Y )
