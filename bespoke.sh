@@ -10,6 +10,7 @@
 # bespoke-install updates Fedora and installs common packages
 bespoke-install() {
     echo -e  "\nUpdating your repositories and default packages...\n"
+    sleep 1
     if [ "$ATOMICFEDORA" = true ]; then
         sudo rpm-ostree status
         sudo rpm-ostree upgrade --check
@@ -26,11 +27,13 @@ bespoke-install() {
         exit 1
     fi
     echo -e "\nUpdating your firmware...\n"
+    sleep 1
     sudo fwupdmgr get-devices
     sudo fwupdmgr refresh --force
     sudo fwupdmgr get-updates
     sudo fwupdmgr update -y
     echo -e "\Installing RPM Fusion and useful base packages...\n"
+    sleep 1
     if [ "$ATOMICFEDORA" = true ]; then
         sudo rpm-ostree install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
         sudo rpm-ostree update --uninstall $(rpm -q rpmfusion-free-release) --uninstall $(rpm -q rpmfusion-nonfree-release) --install rpmfusion-free-release --install rpmfusion-nonfree-release
@@ -45,6 +48,7 @@ bespoke-install() {
         sudo dnf install -y fedy
     fi
     echo -e "\Adding some kernel arguments...\n"
+    sleep 1
     if [ "$ATOMICFEDORA" = true ]; then
         sudo rpm-ostree kargs --append=mem_sleep_default=s2idle
         if [ "$DISABLEMITIGATIONS" = true ]; then
@@ -57,8 +61,10 @@ bespoke-install() {
         fi
     fi
     echo -e "\nConfiguring GPU drivers and other hardware...\n"
+    sleep 1
     if [ "$INTELGPU" = true ]; then
         echo -e "\nConfiguring Intel drivers...\n"
+        sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
             rpm-ostree override remove libva-intel-media-driver --install intel-media-driver
         else
@@ -67,6 +73,7 @@ bespoke-install() {
     fi
     if [ "$AMDGPU" = true ]; then
         echo -e "\nConfiguring AMD drivers...\n"
+        sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
             rpm-ostree override remove mesa-va-drivers --install mesa-va-drivers-freeworld
             rpm-ostree override remove mesa-vdpau-drivers --install mesa-vdpau-drivers-freeworld
@@ -77,6 +84,7 @@ bespoke-install() {
     fi
     if [ "$NVIDIAGPU" = true ]; then
         echo -e "\nConfiguring Nvidia drivers...\n"
+        sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
             sudo rpm-ostree install --apply-live akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-cuda
             sudo rpm-ostree kargs --append=rd.driver.blacklist=nouveau --append=modprobe.blacklist=nouveau --append=nvidia-drm.modeset=1
@@ -90,13 +98,16 @@ bespoke-install() {
         fi
     fi
     echo -e "\nUpdating Flatpak applications and Flathub repositories...\n"
+    sleep 1
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     flatpak remote-modify --enable flathub
     flatpak install -y --reinstall flathub $(flatpak list --app-runtime=org.fedoraproject.Platform --columns=application | tail -n +1 )
+    sleep 1
     flatpak remote-add --user flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
     flatpak update
     flatpak install -y flathub com.mattjakeman.ExtensionManager
     echo -e "\nInstalling Google Chrome and core GNOME applications...\n"
+    sleep 1
     if [ "$ATOMICFEDORA" = true ]; then
         flatpak install -y flathub com.google.Chrome org.gnome.DejaDup
         sudo rpm-ostree install gnome-tweaks gnome-extensions-app flatseal
@@ -112,6 +123,7 @@ bespoke-install() {
 bespoke-appinstalls() {
     if [ "$INSTALLOFFICE" = true ]; then
         echo -e "\nInstalling office and productivity applications...\n"
+        sleep 1
         flatpak install -y flathub eu.betterbird.Betterbird us.zoom.Zoom com.discordapp.Discord com.slack.Slack org.gnome.World.Iotas md.obsidian.Obsidian
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub org.libreoffice.LibreOffice org.gnome.Evolution org.gnome.Geary org.gnucash.GnuCash org.kde.okular com.calibre_ebook.calibre
@@ -121,6 +133,7 @@ bespoke-appinstalls() {
     fi
     if [ "$INSTALLMEDIA" = true ]; then
         echo -e "\nInstalling personal multimedia applications...\n"
+        sleep 1
         flatpak install -y flathub io.bassi.Amberol com.github.iwalton3.jellyfin-media-player org.nickvision.tubeconverter
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub io.github.celluloid_player.Celluloid org.videolan.VLC com.github.johnfactotum.Foliate org.gnome.Rhythmbox3 org.gnome.Totem
@@ -130,6 +143,7 @@ bespoke-appinstalls() {
     fi
     if [ "$INSTALLCREATIVE" = true ]; then
         echo -e "\nInstalling creative design applications...\n"
+        sleep 1
         flatpak install -y flathub io.github.nate_xyz.Conjure io.gitlab.theevilskeleton.Upscaler
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub org.gimp.GIMP org.inkscape.Inkscape org.kde.krita org.darktable.Darktable net.scribus.Scribus org.fontforge.FontForge org.gnome.Shotwell org.entangle_photo.Manager nl.hjdskes.gcolor3 net.sourceforge.Hugin com.github.jeromerobert.pdfarranger
@@ -139,6 +153,7 @@ bespoke-appinstalls() {
     fi
     if [ "$INSTALLVIDEO" = true ]; then
         echo -e "\nInstalling 3D and video production applications...\n"
+        sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub org.blender.Blender org.kde.kdenlive com.obsproject.Studio org.openshot.OpenShot org.pitivi.Pitivi org.synfig.SynfigStudio
         else
@@ -147,6 +162,7 @@ bespoke-appinstalls() {
     fi
     if [ "$INSTALLAUDIO" = true ]; then
         echo -e "\nInstalling audio production applications...\n"
+        sleep 1
         flatpak install -y flathub org.tenacityaudio.Tenacity
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub org.ardour.Ardour org.musescore.MuseScore org.soundconverter.SoundConverter org.denemo.Denemo
@@ -156,6 +172,7 @@ bespoke-appinstalls() {
     fi
     if [ "$INSTALLDEVELOPMENT" = true ]; then
         echo -e "\nInstalling coding tools and developer applications...\n"
+        sleep 1
         flatpak install -y flathub com.google.AndroidStudio dev.pulsar_edit.Pulsar
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub com.visualstudio.code org.gnome.meld org.gnome.gitlab.somas.Apostrophe
@@ -168,6 +185,7 @@ bespoke-appinstalls() {
     fi
     if [ "$INSTALLGIS" = true ]; then
         echo -e "\nInstalling GIS and weather data applications...\n"
+        sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub org.qgis.qgis com.gitlab.bitseater.meteo
         else
@@ -176,10 +194,12 @@ bespoke-appinstalls() {
     fi
     if [ "$INSTALLLLM" = true ]; then
         echo -e "\nInstalling LLM front-end applications...\n"
+        sleep 1
         flatpak install -y flathub com.jeffser.Alpaca io.gpt4all.gpt4all
     fi
     if [ "$INSTALLGAMING" = true ]; then
         echo -e "\nInstalling gaming platforms and packages...\n"
+        sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -Y flathub com.valvesoftware.Steam io.github.sharkwouter.Minigalaxy net.lutris.Lutris org.winehq.Wine com.usebottles.bottles
         else
@@ -188,6 +208,7 @@ bespoke-appinstalls() {
     fi
     if [ "$INSTALLSHARING" = true ]; then
         echo -e "\nInstalling file sharing platform packages...\n"
+        sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
             rpm-ostree install https://www.dropbox.com/download?dl=packages/fedora/nautilus-dropbox-2024.04.17-1.fc39.x86_64.rpm
             flatpak install -y flathub org.sparkleshare.SparkleShare
@@ -198,6 +219,7 @@ bespoke-appinstalls() {
     fi
     if [ "$INSTALLTAILSCALE" = true ]; then
         echo -e "\nInstalling Tailscale...\n"
+        sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
             sudo curl -s https://pkgs.tailscale.com/stable/fedora/tailscale.repo -o /etc/yum.repos.d/tailscale.repo > /dev/null
             sudo wget https://pkgs.tailscale.com/stable/fedora/repo.gpg -O /etc/pki/rpm-gpg/tailscale.gpg
@@ -231,15 +253,16 @@ bespoke-start() {
         ++----------------------------------------------++
         '
     sudo clear
-    echo -e "$ASCIILOGO"
-    echo -e "The BESPOKE script is for a fresh Fedora Workstation 40 or 41 installs only!"
-    echo -e "\nIf you don't want to continue, press Control-C now to exit the script."
-    echo -e "\nA few questions before we begin - this will help the script customize your installation."
+    echo -e "\033[36;1m$ASCIILOGO\033[0m"
+    echo -e "\nThe BESPOKE script is for a fresh \033[34;1mFedora\033[0 Workstation \033[34;1m40\033[0m or \033[34;1m41\033[0m installs only!"
+    echo -e "\nIf you don't want to continue, press \033[31mControl-C\033[0 now to \033[31mexit\033[0 the script."
+    sleep 2
+    echo -e "\nA few questions before we begin - this will help the script customize your installation.\n"
 }
 
 bespoke-options() {
-    echo -e "\nThere are built-in fixes for the CPU Meltdown/Sceptre vulnerabilities that are\nbuilt-into the Linux kernel. If you do not believe you need these fixes, which\ncan negatively affect performance - this script can disable those mitagations.\n"
-    echo -e "\nShould mitigations for Intel 5th-9th Gen CPUs be disabled?"
+    echo -e "\n\nThere are built-in fixes for the CPU Meltdown/Sceptre vulnerabilities that are\nbuilt-into the Linux kernel. If you do not believe you need these fixes, which\ncan negatively affect performance - this script can disable those mitagations.\n"
+    echo -e "\nShould mitigations for \033[31mIntel 5th-9th Gen CPUs\033[0 be disabled?"
     read -n 1 -p "If you are unsure of what this means, choose N for no. (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -250,8 +273,8 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\nBy default, Fedora includes a free/open-source version for Intel iGPUs that can\nbe replaced with a higher performance, less-open driver.  It is recommended to\ninstall this package to increase performance for 5th gen platforms and later.\n"
-    echo "\nIs this device an Intel 5th Gen or later with integrated Intel graphics?"
+    echo -e "\n\nBy default, Fedora includes a free/open-source version for Intel iGPUs that can\nbe replaced with a higher performance, less-open driver.  It is recommended to\ninstall this package to increase performance for 5th gen platforms and later.\n"
+    echo "\nIs this device an \033[31mIntel 5th Gen or later\033[0 with integrated Intel graphics?"
     read -n 1 -p "Choose Y (Yes) if you have a dedicated Intel GPU as well. (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -262,8 +285,8 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\nBy default, Fedora includes a free/open-source driver for AMD GPUs and iGPUs\nthat can be replaced with an updated package that may offer some increases in\nperformance.  It is recommended if you have AMD hardware to install these packages.\n"
-    read -n 1 -p "\nDo you have integrated AMD graphics or an AMD GPU? (y/n) " answer
+    echo -e "\n\nBy default, Fedora includes a free/open-source driver for AMD GPUs and iGPUs\nthat can be replaced with an updated package that may offer some increases in\nperformance.  It is recommended if you have AMD hardware to install these packages.\n"
+    read -n 1 -p "\nDo you have integrated \033[31mAMD graphics\033[0 or an AMD GPU? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
             AMDGPU=true
@@ -273,8 +296,8 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\nBe default, Fedora includes only free/open-source software which excludes some\nproprietary packages released by Nvidia to enable their hardware or the best\nfeatures of their hardware.  It is recommended if you have Nvidia hardware to\ninstall these packages.  Additional setup prompts may appear during installation.\n"
-    read -n 1 -p "\nDo you have integrated Nvidia graphics or a Nvidia GPU? (y/n) " answer
+    echo -e "\n\nBy default, Fedora includes only free/open-source software which excludes some\nproprietary packages released by Nvidia to enable their hardware or the best\nfeatures of their hardware.  It is recommended if you have Nvidia hardware to\ninstall these packages.  Additional setup prompts may appear during installation.\n"
+    read -n 1 -p "\nDo you have integrated \033[31mNvidia graphics\033[0 or a Nvidia GPU? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
             NVIDIAGPU=true
@@ -284,7 +307,7 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\nThis script includes prompts to install some common, popular packages from either\nthe Fedora/RPM Fusion repositories or Flathub - this is different than some of\nthe default behavior from tools like dnf groups to minimize extra packages.\n"
+    echo -e "\n\nThis script includes prompts to install some common, popular packages from either\nthe Fedora/RPM Fusion repositories or Flathub - this is different than some of\nthe default behavior from tools like dnf groups to minimize extra cruft.\n"
     read -n 1 -p "\nDo you want to choose apps to install? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -295,7 +318,7 @@ bespoke-options() {
         ;;
     esac
 
-    echo "\nDo you want to install file sharing platform packages?"
+    echo "\n\nDo you want to install \033[32mfile sharing platform\033[0 packages?"
     read -n 1 -p "Dropbox, Sparkleshare, and more - (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -306,7 +329,7 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\nThis script includes the abiltiy to install the WireGuard-based networking suite\nfrom Tailscale that integrates with both the Linux shell and your desktop\nenvironment.  You will be prompted during the script to login and add the node.\n"
+    echo -e "\n\nThis script includes the abiltiy to install the WireGuard-based networking suite\nfrom Tailscale that integrates with both the Linux shell and your desktop\nenvironment.  You will be prompted during the script to login and add the node.\n"
     read -n 1 -p "\nDo you want to install Tailscale? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -320,7 +343,7 @@ bespoke-options() {
 
 bespoke-appoptions() {
     if [ "$INSTALLAPPS" = true ]; then
-        echo -e "\nDo you want to install office and productivity applications?"
+        echo -e "\n\nDo you want to install \033[32moffice and productivity\033[0 applications?"
         read -n 1 -p "LibreOffice, Email, GnuCash, Okular, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -331,7 +354,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install personal multimedia applications?"
+        echo -e "\nDo you want to install \033[32mpersonal multimedia\033[0 applications?"
         read -n 1 -p "Amberol, Calibre, Celluloid, VLC, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -342,7 +365,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install creative design applications?"
+        echo -e "\nDo you want to install \033[32mcreative design\033[0 applications?"
         read -n 1 -p "Darktable, GIMP, Inkscape, Krita, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -353,7 +376,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install 3D and video production applications?"
+        echo -e "\nDo you want to install \033[32m3D and video production\033[0 applications?"
         read -n 1 -p "Blender, Kdenlive, OBS, OpenShot, Pitivi, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -364,7 +387,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install audio production applications?"
+        echo -e "\nDo you want to install \033[32maudio production\033[0 applications?"
         read -n 1 -p "Ardour, MuseScore, Tenacity, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -375,7 +398,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install coding tools and developer applications?"
+        echo -e "\nDo you want to install \033[32mcoding tools and development\033[0 applications?"
         read -n 1 -p "Android Studio, Pulsar, Obsidian, and Visual Studio Code (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -386,7 +409,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install GIS and weather data applications?"
+        echo -e "\nDo you want to install \033[32mGIS and weather\033[0 applications?"
         read -n 1 -p "Meteo and QGIS (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -397,7 +420,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install LLM front-end applications?"
+        echo -e "\nDo you want to install \033[32mLLM front-end\033[0 applications?"
         read -n 1 -p "Alpaca and GPT4All (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -408,7 +431,7 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\nDo you want to install gaming platforms and packages?"
+        echo -e "\nDo you want to install \033[32mgaming platforms\033[0 and packages?"
         read -n 1 -p "Steam, Lutris, Wine, Bottles, and more (y/n) " answer
         case ${answer:0:1} in
             y|Y )
@@ -441,10 +464,11 @@ bespoke-atomic() {
 }
 
 bespoke-distro() {
-    echo -e "\nChecking if you are running Fedora...\n"
+    echo -e "\nChecking if you are running \033[34mFedora\033[0...\n"
+    sleep 1
     if [ ! -f /etc/os-release ]; then
-        echo -e "\nERROR at bespoke-distro - Checking if you are running Fedora"
-        echo -e "Script was not able to determine distribution or read /etc/os-release... script stopped.\n"
+        echo -e "\n\031[34mERROR at bespoke-distro\033[0 - Checking if you are running Fedora"
+        echo -e "Script was not able to determine distribution or read /etc/os-release... \031[34mscript stopped\033[0.\n"
         exit 1
     fi
     . /etc/os-release
@@ -453,20 +477,21 @@ bespoke-distro() {
     else
         echo -e "\nThis script is not compatible with your distribution."
         echo -e "\nYour computer is is currently running: $ID $VERSION_ID"
-        echo -e "\nThis script is for Fedora 40, 41, or higher - installation stopped."
+        echo -e "\nThis script is for \033[34mFedora 40, 41, or higher\033[0 - \031[34minstallation stopped\033[0."
         exit 1
     fi
 }
 
 bespoke-version() {
     echo "\nChecking your version of Fedora...\n"
+    sleep 1
     . /etc/os-release
     if [ "$VERSION_ID" -ge "40" ]; then
         bespoke-atomic;
     else
         echo -e "\nThis script is not compatible with your distribution version."
         echo -e "\nYour computer is is currently running: $ID $VERSION_ID"
-        echo -e "\nThis script is for Fedora 40, 41, or higher - installation stopped."
+        echo -e "\nThis script is for \033[34mFedora 40, 41, or higher\033[0 - \031[34minstallation stopped\033[0."
         exit 1
     fi
 }
@@ -494,13 +519,14 @@ else
     bespoke-appinstalls
 fi
 
-echo -e "\nThe script has now completed and it is recommended to reboot the device."
+echo -e "\n\nThe script has now completed and it is recommended to reboot the device.\n"
 read -n 1 -p "Do you want to restart now? (y/n) " answer
 case ${answer:0:1} in
     y|Y )
         sudo systemctl reboot
     ;;
     * )
+        echo -e "\n"
         exit 0
     ;;
 esac
