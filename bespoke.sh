@@ -9,7 +9,7 @@
 
 # Updates Fedora and install basic packages
 bespoke-install() {
-    echo -e  "\n\033[1mUpdating your repositories and default packages...\033[0m\n"
+    echo -e  "\n\n\033[1mUpdating your repositories and default packages...\033[0m\n"
     sleep 1
     if [ "$ATOMICFEDORA" = true ]; then
         sudo rpm-ostree status
@@ -28,6 +28,8 @@ bespoke-install() {
     fi
     echo -e "\n\033[1mUpdating your firmware...\033[0m\n"
     sleep 1
+    echo -e "\n\033[34;1mWARNING: DO NOT REBOOT WHEN PROMPTED AFTER THE FIRMWARE UPDATE RUNS IN THE NEXT STEP!\033[0m\n"
+    sleep 5
     sudo fwupdmgr get-devices
     sudo fwupdmgr refresh --force
     sudo fwupdmgr get-updates
@@ -99,6 +101,8 @@ bespoke-install() {
     fi
     echo -e "\n\033[1mUpdating Flatpak applications and Flathub repositories...\033[0m\n"
     sleep 1
+    echo -e "\nNote: You may be prompted for your password by your desktop environment.\n"
+    sleep 3
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     flatpak remote-modify --enable flathub
     flatpak install -y --reinstall flathub $(flatpak list --app-runtime=org.fedoraproject.Platform --columns=application | tail -n +1 )
@@ -274,7 +278,7 @@ bespoke-options() {
     esac
 
     echo -e "\n\n\nBy default, Fedora includes a free/open-source version for Intel iGPUs that can\nbe replaced with a higher performance, less-open driver.  It is recommended to\ninstall this package to increase performance for 5th gen platforms and later.\n"
-    echo "\nIs this device an \033[31mIntel 5th Gen or later\033[0m with integrated Intel graphics?"
+    echo -e "\nIs this device an \033[31mIntel 5th Gen or later\033[0m with integrated Intel graphics?"
     read -n 1 -p "Choose Y (Yes) if you have a dedicated Intel GPU as well. (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -285,8 +289,8 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\n\n\nBy default, Fedora includes a free/open-source driver for AMD GPUs and iGPUs\nthat can be replaced with an updated package that may offer some increases in\nperformance.  It is recommended if you have AMD hardware to install these packages.\n"
-    read -n 1 -p "\nDo you have integrated \033[31mAMD graphics\033[0m or an AMD GPU? (y/n) " answer
+    echo -e "\n\n\nBy default, Fedora includes a free/open-source driver for \033[31mAMD GPUs and iGPUs\033[0m\nthat can be replaced with an updated package that may offer some increases in\nperformance.  It is recommended if you have AMD hardware to install these packages.\n"
+    read -n 1 -p "Do you have integrated AMD graphics or an AMD GPU? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
             AMDGPU=true
@@ -296,8 +300,8 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\n\n\nBy default, Fedora includes only free/open-source software which excludes some\nproprietary packages released by Nvidia to enable their hardware or the best\nfeatures of their hardware.  It is recommended if you have Nvidia hardware to\ninstall these packages.  Additional setup prompts may appear during installation.\n"
-    read -n 1 -p "\nDo you have integrated \033[31mNvidia graphics\033[0m or a Nvidia GPU? (y/n) " answer
+    echo -e "\n\n\nBy default, Fedora includes only free/open-source software which excludes some\nproprietary \033[31mpackages released by Nvidia to enable their hardware\033[0m or the best\nfeatures of their hardware.  It is recommended if you have Nvidia hardware to\ninstall these packages.  Additional setup prompts may appear during installation.\n"
+    read -n 1 -p "Do you have integrated Nvidia graphics or a Nvidia GPU? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
             NVIDIAGPU=true
@@ -308,7 +312,7 @@ bespoke-options() {
     esac
 
     echo -e "\n\n\nThis script includes prompts to install some common, popular packages from either\nthe \033[34mFedora/RPM Fusion\033[0m repositories or Flathub - this is different than some of\nthe default behavior from tools like dnf groups to minimize extra cruft.\n"
-    read -n 1 -p "\nDo you want to choose apps to install? (y/n) " answer
+    read -n 1 -p "Do you want to choose apps to install? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
             INSTALLAPPS=true
@@ -318,7 +322,7 @@ bespoke-options() {
         ;;
     esac
 
-    echo "\n\n\nDo you want to install \033[32mfile sharing platform\033[0m packages?"
+    echo -e "\n\n\nDo you want to install \033[32mfile sharing platform\033[0m packages?"
     read -n 1 -p "Dropbox, Sparkleshare, and more - (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -330,7 +334,7 @@ bespoke-options() {
     esac
 
     echo -e "\n\n\nThis script includes the abiltiy to install the WireGuard-based networking suite\nfrom \033[32mTailscale\033[0m that integrates with both the Linux shell and your desktop\nenvironment.  You will be prompted during the script to login and add the node.\n"
-    read -n 1 -p "\nDo you want to install Tailscale? (y/n) " answer
+    read -n 1 -p "Do you want to install Tailscale? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
             INSTALLTAILSCALE=true
@@ -489,7 +493,7 @@ bespoke-distro() {
 
 # Figure out if we're running a version of Fedora that this script should support
 bespoke-version() {
-    echo "\nChecking your version of \033[34mFedora\033[0m...\n"
+    echo -e "\nChecking your version of \033[34mFedora\033[0m...\n"
     sleep 1
     . /etc/os-release
     if [ "$VERSION_ID" -ge "40" ]; then
