@@ -13,9 +13,10 @@ I wrote this as a quick and easy way to make *Fedora Workstation* or *Fedora Sil
 
 ## How to use this script
 
-- Clone the repository using the command `git clone https://github.com/seangalie/bespoke.git`
-- Switch into the cloned directory using `cd ./bespoke/`
+- Clone the repository using the command `git clone https://github.com/seangalie/bespoke ~/.bespoke`
+- Switch into the cloned directory using `cd ~/.bespoke/`
 - Remember to make the script executable with `chmod +x bespoke.sh`
+- Run the script `./bespoke.sh`
 
 ## Using Debian?
 
