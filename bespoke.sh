@@ -125,12 +125,12 @@ bespoke-install() {
     sleep 1
     if [ "$ATOMICFEDORA" = true ]; then
         flatpak install -y flathub com.google.Chrome org.gnome.DejaDup
-        sudo rpm-ostree install gnome-tweaks gnome-extensions-app flatseal kitty
+        sudo rpm-ostree install gnome-tweaks gnome-extensions-app flatseal
     else
         sudo dnf install -y fedora-workstation-repositories
         sudo dnf config-manager --set-enabled google-chrome
         sudo dnf install -y google-chrome-stable
-        sudo dnf install -y gnome-tweaks gnome-extensions-app flatseal deja-dup kitty
+        sudo dnf install -y gnome-tweaks gnome-extensions-app flatseal deja-dup
     fi
 }
 
@@ -210,13 +210,13 @@ bespoke-appinstalls() {
     if [ "$INSTALLLLM" = true ]; then
         echo -e "\n\033[1mInstalling LLM front-end applications...\033[0m\n"
         sleep 1
-        flatpak install -y flathub com.jeffser.Alpaca io.gpt4all.gpt4all
+        flatpak install -y flathub io.gpt4all.gpt4all com.jeffser.Alpaca
     fi
     if [ "$INSTALLGAMING" = true ]; then
         echo -e "\n\033[1mInstalling gaming platforms and packages...\033[0m\n"
         sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
-            flatpak install -Y flathub com.valvesoftware.Steam io.github.sharkwouter.Minigalaxy net.lutris.Lutris org.winehq.Wine com.usebottles.bottles
+            flatpak install -y flathub com.valvesoftware.Steam io.github.sharkwouter.Minigalaxy net.lutris.Lutris org.winehq.Wine com.usebottles.bottles
         else
             sudo dnf install -y steam minigalaxy lutris wine bottles gamemode gamescope
         fi
@@ -225,7 +225,7 @@ bespoke-appinstalls() {
         echo -e "\n\033[1mInstalling file sharing platform packages...\033[0m\n"
         sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
-            rpm-ostree install dropbox nautilus-dropbox
+            rpm-ostree install --apply-live dropbox nautilus-dropbox
             flatpak install -y flathub org.sparkleshare.SparkleShare
         else
             sudo dnf install -y dropbox nautilus-dropbox sparkleshare
@@ -262,7 +262,7 @@ bespoke-appinstalls() {
     fi
 }
 
-# Start the script with a nice ASCII logo and an 'are you sure?' prompt'
+# Start the script with the script's nice ASCII logo and a confirmation prompt
 bespoke-start() {
     ASCIILOGO='
         \033[93;1m++----------------------------------------------++\033[0m
