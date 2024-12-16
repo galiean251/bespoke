@@ -541,6 +541,16 @@ bespoke-version() {
     fi
 }
 
+# Install shell enhancements from Starship (https://starship.rs/) and activate the No Nerd Fonts preset (https://starship.rs/presets/no-nerd-font)
+bespoke-starship() {
+    echo -e "\nInstalling enhancements to default Bash shell with \033[95mStarship\033[0m...\n"
+    sleep 1
+    curl -sS https://starship.rs/install.sh | sh
+    mkdir ~/.config
+    touch ~/.config/starship.toml
+    echo -e "eval \"$(starship init bash)\"" | sudo tee -a ~/.bashrc
+}
+
 # Figure out what Desktop Environment we're running
 if [ "$XDG_CURRENT_DESKTOP" = "" ]
     then
@@ -569,6 +579,7 @@ bespoke-options
 bespoke-appoptions
 bespoke-install
 bespoke-appinstalls
+bespoke-starship
 
 if [ "$USERDESKTOP" = "gnome" ]; then
     echo -e "\nResetting your desktop environment to lock settings...\n"
