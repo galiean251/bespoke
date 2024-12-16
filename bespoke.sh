@@ -548,7 +548,8 @@ bespoke-starship() {
     curl -sS https://starship.rs/install.sh | sh
     mkdir ~/.config
     touch ~/.config/starship.toml
-    echo -e "eval \"$(starship init bash)\"" | sudo tee -a ~/.bashrc
+    echo 'eval "$(starship init bash)"' | sudo tee -a ~/.bashrc
+    starship preset no-nerd-font -o ~/.config/starship.toml
 }
 
 # Figure out what Desktop Environment we're running
@@ -594,6 +595,7 @@ sleep 1
 read -n 1 -p "Do you want to restart now? (y/n) " answer
 case ${answer:0:1} in
     y|Y )
+        echo -e "\n"
         sudo systemctl reboot
     ;;
     * )
