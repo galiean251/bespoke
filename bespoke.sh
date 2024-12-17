@@ -28,7 +28,7 @@ bespoke-install() {
     fi
     echo -e "\n\033[1mUpdating your firmware...\033[0m\n"
     sleep 1
-    echo -e "\n\033[91;1mWARNING: DO NOT REBOOT WHEN PROMPTED AFTER THE FIRMWARE UPDATE RUNS IN THE NEXT STEP!\033[0m\n"
+    echo -e "\n\033[91;1mWARNING: DO NOT REBOOT IF YOU ARE PROMPTED TO AFTER THE FIRMWARE UPDATE RUNS IN THE NEXT STEP!\033[0m\n"
     sleep 5
     sudo fwupdmgr get-devices
     sudo fwupdmgr refresh --force
