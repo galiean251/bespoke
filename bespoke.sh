@@ -46,8 +46,6 @@ bespoke-install() {
         sudo rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
         sudo dnf install -y distrobox stacer rclone lm_sensors unzip p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng curl git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat wget zsh libavcodec-freeworld grubby julietaula-montserrat-fonts
         sudo dnf install -y pwgen gpg 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts julietaula-montserrat-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts
-        sudo dnf copr enable kwizart/fedy
-        sudo dnf install -y fedy
         if [ "$VERSION_ID" = "40" ]; then
             sudo dnf install -y dnf5 dnf5-plugins
             sudo dnf group upgrade -y 'core' 'multimedia' 'sound-and-video' --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
@@ -541,6 +539,19 @@ bespoke-version() {
     fi
 }
 
+bespoke-repos() {
+    if [ "$ATOMICFEDORA" = true ]; then
+        sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/lilay/topgrade/repo/fedora-40/lilay-topgrade-fedora-$VERSION_ID.repo
+        sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/kwizart/fedy/repo/fedora-40/kwizart-fedy-fedora-$VERSION_ID.repo
+        sudo rpm-ostree refresh-md
+        sudo rpm-ostree reload
+        sudo rpm-ostree install -y topgrade fedy
+    else
+        sudo dnf copr enable lilay/topgrade
+        sudo dnf copr enable kwizart/fedy
+        sudo dnf install -y topgrade fedy
+    fi
+}
 # Install shell enhancements from Starship (https://starship.rs/) and activate the No Nerd Fonts preset (https://starship.rs/presets/no-nerd-font)
 bespoke-starship() {
     echo -e "\nInstalling enhancements to default Bash shell with \033[95mStarship\033[0m...\n"
@@ -580,6 +591,7 @@ bespoke-options
 bespoke-appoptions
 bespoke-install
 bespoke-appinstalls
+bespoke-repos
 bespoke-starship
 
 if [ "$USERDESKTOP" = "gnome" ]; then
