@@ -34,18 +34,30 @@ bespoke-install() {
     sudo fwupdmgr refresh --force
     sudo fwupdmgr get-updates
     sudo fwupdmgr update -y
+    echo -e "\n\033[1mAdding some community repositories before we begin...\033[0m\n"
+    sleep 1
+    if [ "$ATOMICFEDORA" = true ]; then
+        sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/lilay/topgrade/repo/fedora-40/lilay-topgrade-fedora-$VERSION_ID.repo
+        sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/kwizart/fedy/repo/fedora-40/kwizart-fedy-fedora-$VERSION_ID.repo
+        sudo rpm-ostree refresh-md
+    else
+        sudo dnf copr enable lilay/topgrade
+        sudo dnf copr enable kwizart/fedy
+        sudo dnf update
+        sudo dnf upgrade --refresh
+    fi
     echo -e "\n\033[1mInstalling RPM Fusion and useful base packages...\033[0m\n"
     sleep 1
     if [ "$ATOMICFEDORA" = true ]; then
-        sudo rpm-ostree install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+        sudo rpm-ostree install -y --apply-live https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
         sudo rpm-ostree update --uninstall $(rpm -q rpmfusion-free-release) --uninstall $(rpm -q rpmfusion-nonfree-release) --install rpmfusion-free-release --install rpmfusion-nonfree-release
-        sudo rpm-ostree install -y distrobox stacer rclone lm_sensors p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng curl git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat wget zsh libavcodec-freeworld grubby julietaula-montserrat-fonts
-        sudo rpm-ostree install -y pwgen 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts julietaula-montserrat-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts
+        sudo rpm-ostree install -y --apply-live --allow-inactive distrobox stacer rclone lm_sensors p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat curl wget zsh libavcodec-freeworld grubby
+        sudo rpm-ostree install -y --apply-live --allow-inactive pwgen 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts julietaula-montserrat-fonts
     else
         sudo rpm -Uvh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
         sudo rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-        sudo dnf install -y distrobox stacer rclone lm_sensors unzip p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng curl git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat wget zsh libavcodec-freeworld grubby julietaula-montserrat-fonts
-        sudo dnf install -y pwgen gpg 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts julietaula-montserrat-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts
+        sudo dnf install -y distrobox stacer rclone lm_sensors unzip p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat curl wget zsh libavcodec-freeworld grubby
+        sudo dnf install -y pwgen gpg 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts julietaula-montserrat-fonts
         if [ "$VERSION_ID" = "40" ]; then
             sudo dnf install -y dnf5 dnf5-plugins
             sudo dnf group upgrade -y 'core' 'multimedia' 'sound-and-video' --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
@@ -97,7 +109,7 @@ bespoke-install() {
         echo -e "\n\033[3mConfiguring Nvidia drivers...\033[0m\n"
         sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
-            sudo rpm-ostree install --apply-live akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-cuda
+            sudo rpm-ostree install -y --apply-live akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-cuda
             sudo rpm-ostree kargs --append=rd.driver.blacklist=nouveau --append=modprobe.blacklist=nouveau --append=nvidia-drm.modeset=1
         else
             sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-cuda
@@ -123,7 +135,7 @@ bespoke-install() {
     sleep 1
     if [ "$ATOMICFEDORA" = true ]; then
         flatpak install -y flathub com.google.Chrome org.gnome.DejaDup
-        sudo rpm-ostree install gnome-tweaks gnome-extensions-app flatseal
+        sudo rpm-ostree install -y gnome-tweaks gnome-extensions-app flatseal
     else
         sudo dnf install -y fedora-workstation-repositories
         sudo dnf config-manager --set-enabled google-chrome
@@ -223,7 +235,7 @@ bespoke-appinstalls() {
         echo -e "\n\033[1mInstalling file sharing platform packages...\033[0m\n"
         sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
-            rpm-ostree install --apply-live dropbox nautilus-dropbox
+            rpm-ostree install -y --apply-live dropbox nautilus-dropbox
             flatpak install -y flathub org.sparkleshare.SparkleShare
         else
             sudo dnf install -y dropbox nautilus-dropbox sparkleshare
@@ -547,8 +559,6 @@ bespoke-repos() {
         sudo rpm-ostree reload
         sudo rpm-ostree install -y topgrade fedy
     else
-        sudo dnf copr enable lilay/topgrade
-        sudo dnf copr enable kwizart/fedy
         sudo dnf install -y topgrade fedy
     fi
 }
