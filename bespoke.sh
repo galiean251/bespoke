@@ -10,7 +10,7 @@
 # Updates Fedora and install basic packages
 bespoke-install() {
     echo -e  "\n\n\033[1mUpdating your repositories and default packages...\033[0m\n"
-    sleep 1
+    sleep 3
     if [ "$ATOMICFEDORA" = true ]; then
         sudo rpm-ostree status
         sudo rpm-ostree upgrade --check
@@ -29,13 +29,13 @@ bespoke-install() {
     echo -e "\n\033[1mUpdating your firmware...\033[0m\n"
     sleep 1
     echo -e "\n\033[91;1mWARNING: DO NOT REBOOT IF YOU ARE PROMPTED TO AFTER THE FIRMWARE UPDATE RUNS IN THE NEXT STEP!\033[0m\n"
-    sleep 5
+    sleep 7
     sudo fwupdmgr get-devices
     sudo fwupdmgr refresh --force
     sudo fwupdmgr get-updates
     sudo fwupdmgr update -y
     echo -e "\n\033[1mAdding some community repositories before we begin...\033[0m\n"
-    sleep 1
+    sleep 3
     if [ "$ATOMICFEDORA" = true ]; then
         sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/lilay/topgrade/repo/fedora-40/lilay-topgrade-fedora-$VERSION_ID.repo
         sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/kwizart/fedy/repo/fedora-40/kwizart-fedy-fedora-$VERSION_ID.repo
@@ -47,7 +47,7 @@ bespoke-install() {
         sudo dnf upgrade --refresh
     fi
     echo -e "\n\033[1mInstalling RPM Fusion and useful base packages...\033[0m\n"
-    sleep 1
+    sleep 3
     if [ "$ATOMICFEDORA" = true ]; then
         sudo rpm-ostree install -y --apply-live https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
         sudo rpm-ostree update --uninstall $(rpm -q rpmfusion-free-release) --uninstall $(rpm -q rpmfusion-nonfree-release) --install rpmfusion-free-release --install rpmfusion-nonfree-release
@@ -71,7 +71,7 @@ bespoke-install() {
         fi
     fi
     echo -e "\n\033[1mAdding some kernel arguments...\033[0m\n"
-    sleep 1
+    sleep 3
     if [ "$ATOMICFEDORA" = true ]; then
         sudo rpm-ostree kargs --append=mem_sleep_default=s2idle
         if [ "$DISABLEMITIGATIONS" = true ]; then
@@ -84,7 +84,7 @@ bespoke-install() {
         fi
     fi
     echo -e "\n\033[1mConfiguring GPU drivers and other hardware...\033[0m\n"
-    sleep 1
+    sleep 3
     if [ "$INTELGPU" = true ]; then
         echo -e "\n\033[3mConfiguring Intel drivers...\033[0m\n"
         sleep 1
@@ -121,49 +121,71 @@ bespoke-install() {
         fi
     fi
     echo -e "\n\033[1mUpdating Flatpak applications and Flathub repositories...\033[0m\n"
-    sleep 1
-    echo -e "\nNote: You may be prompted for your password by your desktop environment.\n"
     sleep 3
+    echo -e "\nNote: You may be prompted for your password by your desktop environment.\n"
+    sleep 5
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     flatpak remote-modify --enable flathub
     flatpak install -y --reinstall flathub $(flatpak list --app-runtime=org.fedoraproject.Platform --columns=application | tail -n +1 )
     sleep 1
     flatpak remote-add --user flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
     flatpak update
-    flatpak install -y flathub com.mattjakeman.ExtensionManager org.localsend.localsend_app
-    echo -e "\n\033[1mInstalling Google Chrome and core GNOME applications...\033[0m\n"
-    sleep 1
+    if [ "$USERDESKTOP" = "gnome" ]; then
+        flatpak install -y flathub com.mattjakeman.ExtensionManager
+    fi
+    flatpak install -y flathub org.localsend.localsend_app
+    echo -e "\n\033[1mInstalling Google Chrome and core desktop applications...\033[0m\n"
+    sleep 3
     if [ "$ATOMICFEDORA" = true ]; then
-        flatpak install -y flathub com.google.Chrome org.gnome.DejaDup
-        sudo rpm-ostree install -y gnome-tweaks gnome-extensions-app flatseal
+        flatpak install -y flathub com.google.Chrome org.gnome.DejaDup com.github.tchx84.Flatseal
+        if [ "$USERDESKTOP" = "gnome" ]; then
+            sudo rpm-ostree install -y gnome-tweaks gnome-extensions-app
+        fi
+        if [ "$USERDESKTOP" = "kde" ]; then
+            flatpak install -y flathub org.kde.kate
+        fi
     else
         sudo dnf install -y fedora-workstation-repositories
         sudo dnf config-manager --set-enabled google-chrome
-        sudo dnf install -y google-chrome-stable
-        sudo dnf install -y gnome-tweaks gnome-extensions-app flatseal deja-dup
+        sudo dnf install -y google-chrome-stable flatseal deja-dup
+        if [ "$USERDESKTOP" = "gnome" ]; then
+            sudo dnf install -y gnome-tweaks gnome-extensions-app
+        fi
+        if [ "$USERDESKTOP" = "kde" ]; then
+            sudo dnf install -y kate
+        fi
     fi
 }
 
 # Add additional application groups and packages based on interactive questions
 bespoke-appinstalls() {
     if [ "$INSTALLOFFICE" = true ]; then
-        echo -e "\n\033[1mInstalling office and productivity applications...\033[0m\n"
+        echo -e "\n\033[1mInstalling office and messaging applications...\033[0m\n"
         sleep 1
-        flatpak install -y flathub eu.betterbird.Betterbird us.zoom.Zoom com.slack.Slack org.gnome.World.Iotas md.obsidian.Obsidian
+        flatpak install -y flathub eu.betterbird.Betterbird us.zoom.Zoom com.slack.Slack com.discordapp.Discord md.obsidian.Obsidian
         if [ "$ATOMICFEDORA" = true ]; then
-            flatpak install -y flathub org.libreoffice.LibreOffice org.gnome.Evolution org.gnome.Geary org.gnucash.GnuCash org.kde.okular com.calibre_ebook.calibre com.discordapp.Discord
+            flatpak install -y flathub org.libreoffice.LibreOffice org.gnome.Evolution org.gnome.Geary
         else
-            sudo dnf install -y libreoffice geary evolution gnucash okular calibre discord
+            sudo dnf install -y libreoffice geary evolution
+        fi
+    fi
+    if [ "$INSTALLPRODUCTIVITY" = true ]; then
+        echo -e "\n\033[1mInstalling productivity applications...\033[0m\n"
+        sleep 1
+        if [ "$ATOMICFEDORA" = true ]; then
+            flatpak install -y flathub org.gnucash.GnuCash org.kde.okular com.calibre_ebook.calibre
+        else
+            sudo dnf install -y gnucash okular calibre
         fi
     fi
     if [ "$INSTALLMEDIA" = true ]; then
         echo -e "\n\033[1mInstalling personal multimedia applications...\033[0m\n"
         sleep 1
-        flatpak install -y flathub io.bassi.Amberol com.github.iwalton3.jellyfin-media-player org.nickvision.tubeconverter
+        flatpak install -y flathub com.github.iwalton3.jellyfin-media-player org.nickvision.tubeconverter
         if [ "$ATOMICFEDORA" = true ]; then
-            flatpak install -y flathub io.github.celluloid_player.Celluloid org.videolan.VLC com.github.johnfactotum.Foliate org.gnome.Rhythmbox3 org.gnome.Totem
+            flatpak install -y flathub io.github.celluloid_player.Celluloid org.videolan.VLC com.github.johnfactotum.Foliate
         else
-            sudo dnf install -y celluloid vlc yt-dlp foliate rhythmbox totem
+            sudo dnf install -y celluloid vlc yt-dlp foliate
         fi
     fi
     if [ "$INSTALLCREATIVE" = true ]; then
@@ -171,18 +193,18 @@ bespoke-appinstalls() {
         sleep 1
         flatpak install -y flathub io.github.nate_xyz.Conjure io.gitlab.theevilskeleton.Upscaler
         if [ "$ATOMICFEDORA" = true ]; then
-            flatpak install -y flathub org.gimp.GIMP org.inkscape.Inkscape org.kde.krita org.darktable.Darktable net.scribus.Scribus org.fontforge.FontForge org.gnome.Shotwell org.entangle_photo.Manager nl.hjdskes.gcolor3 net.sourceforge.Hugin com.github.jeromerobert.pdfarranger
+            flatpak install -y flathub org.gimp.GIMP org.inkscape.Inkscape org.kde.krita org.darktable.Darktable net.scribus.Scribus org.fontforge.FontForge org.gnome.Shotwell nl.hjdskes.gcolor3 net.sourceforge.Hugin com.github.jeromerobert.pdfarranger
         else
-            sudo dnf install -y darktable gimp inkscape krita scribus fontforge shotwell entangle gcolor3 hugin pdfarranger
+            sudo dnf install -y darktable gimp inkscape krita scribus fontforge shotwell gcolor3 hugin pdfarranger
         fi
     fi
     if [ "$INSTALLVIDEO" = true ]; then
         echo -e "\n\033[1mInstalling 3D and video production applications...\033[0m\n"
         sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
-            flatpak install -y flathub org.blender.Blender org.kde.kdenlive com.obsproject.Studio org.openshot.OpenShot org.pitivi.Pitivi org.synfig.SynfigStudio
+            flatpak install -y flathub org.blender.Blender org.kde.kdenlive com.obsproject.Studio org.openshot.OpenShot
         else
-            sudo dnf install -y blender kdenlive obs-studio openshot pitivi synfigstudio
+            sudo dnf install -y blender kdenlive obs-studio openshot
         fi
     fi
     if [ "$INSTALLAUDIO" = true ]; then
@@ -190,15 +212,15 @@ bespoke-appinstalls() {
         sleep 1
         flatpak install -y flathub org.tenacityaudio.Tenacity
         if [ "$ATOMICFEDORA" = true ]; then
-            flatpak install -y flathub org.ardour.Ardour org.musescore.MuseScore org.soundconverter.SoundConverter org.denemo.Denemo
+            flatpak install -y flathub org.ardour.Ardour org.soundconverter.SoundConverter
         else
-            sudo dnf install -y ardour8 musescore soundconverter gnome-sound-recorder denemo
+            sudo dnf install -y ardour8 soundconverter gnome-sound-recorder
         fi
     fi
     if [ "$INSTALLDEVELOPMENT" = true ]; then
         echo -e "\n\033[1mInstalling coding tools and developer applications...\033[0m\n"
         sleep 1
-        flatpak install -y flathub com.google.AndroidStudio dev.pulsar_edit.Pulsar
+        flatpak install -y flathub com.google.AndroidStudio dev.pulsar_edit.Pulsar io.github.shiftey.Desktop
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub com.visualstudio.code org.gnome.meld org.gnome.gitlab.somas.Apostrophe
         else
@@ -232,13 +254,12 @@ bespoke-appinstalls() {
         fi
     fi
     if [ "$INSTALLSHARING" = true ]; then
-        echo -e "\n\033[1mInstalling file sharing platform packages...\033[0m\n"
+        echo -e "\n\033[1mInstalling Dropbox packages...\033[0m\n"
         sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
             rpm-ostree install -y --apply-live dropbox nautilus-dropbox
-            flatpak install -y flathub org.sparkleshare.SparkleShare
         else
-            sudo dnf install -y dropbox nautilus-dropbox sparkleshare
+            sudo dnf install -y dropbox nautilus-dropbox
         fi
     fi
     if [ "$INSTALLCONTAINER" = true ]; then
@@ -353,8 +374,8 @@ bespoke-options() {
         ;;
     esac
 
-    echo -e "\n\n\nDo you want to install \033[92mfile sharing platform\033[0m packages?"
-    read -n 1 -p "Dropbox, Sparkleshare, and more - (y/n) " answer
+    echo -e "\n\n\nDo you want to install \033[92mDropbox\033[0m?"
+    read -n 1 -p "Dropbox and GNOME Files Integration - (y/n) " answer
     case ${answer:0:1} in
         y|Y )
             INSTALLSHARING=true
@@ -391,8 +412,19 @@ bespoke-options() {
 # Present the choice of different application packages to customize the setup and ideally avoid unneeded cruft
 bespoke-appoptions() {
     if [ "$INSTALLAPPS" = true ]; then
-        echo -e "\n\n\nDo you want to install \033[92moffice and productivity\033[0m applications?"
-        read -n 1 -p "LibreOffice, Email, GnuCash, Okular, and more - (y/n) " answer
+        echo -e "\n\n\nDo you want to install \033[92moffice and messaging\033[0m applications?"
+        read -n 1 -p "LibreOffice, Email Apps, Discord, and Slack - (y/n) " answer
+        case ${answer:0:1} in
+            y|Y )
+                INSTALLOFFICE=true
+            ;;
+            * )
+                INSTALLOFFICE=false
+            ;;
+        esac
+
+        echo -e "\n\n\nDo you want to install \033[92productivity\033[0m applications?"
+        read -n 1 -p "GnuCash, Okular, and Calibre - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
                 INSTALLOFFICE=true
@@ -403,7 +435,7 @@ bespoke-appoptions() {
         esac
 
         echo -e "\n\n\nDo you want to install \033[92mpersonal multimedia\033[0m applications?"
-        read -n 1 -p "Amberol, Calibre, Celluloid, VLC, and more - (y/n) " answer
+        read -n 1 -p "Celluloid, VLC, and more - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
                 INSTALLMEDIA=true
@@ -425,7 +457,7 @@ bespoke-appoptions() {
         esac
 
         echo -e "\n\n\nDo you want to install \033[92m3D and video production\033[0m applications?"
-        read -n 1 -p "Blender, Kdenlive, OBS, OpenShot, Pitivi, and more - (y/n) " answer
+        read -n 1 -p "Blender, Kdenlive, OBS, and OpenShot - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
                 INSTALLVIDEO=true
@@ -551,10 +583,9 @@ bespoke-version() {
     fi
 }
 
+# Adding useful third party DNF repositories and tools to both Regular and Atomic Fedora versions
 bespoke-repos() {
     if [ "$ATOMICFEDORA" = true ]; then
-        sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/lilay/topgrade/repo/fedora-40/lilay-topgrade-fedora-$VERSION_ID.repo
-        sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/kwizart/fedy/repo/fedora-40/kwizart-fedy-fedora-$VERSION_ID.repo
         sudo rpm-ostree refresh-md
         sudo rpm-ostree reload
         sudo rpm-ostree install -y topgrade fedy
