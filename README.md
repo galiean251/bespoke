@@ -51,6 +51,7 @@ I wrote this as a quick and easy way to make *Fedora Workstation* or *Fedora Sil
     - Container Management (Podman, Podman Desktop, Pods, and Docker Utilities)
     - Dropbox (with the Nautilus/Files Integration)
     - Tailscale (and enabling it during setup)
+- Option to install DisplayLink drivers from the `displaylink-rpm` project on [GitHub](https://github.com/displaylink-rpm/displaylink-rpm)
 - Installs the [Starship](https://starship.rs/) prompt customization tool and enables the [No Nerd Fonts](https://starship.rs/presets/no-nerd-font#no-nerd-fonts-preset) preset
 	- **Note:** *I only did this to avoid loading up installations with massive downloads from [Nerd Fonts](https://www.nerdfonts.com/), but I'd encourage you add your favorite (I've been using JetBrains, Fira, or Ubuntu here and there) and then use a preset such as [Nerd Font Symbols](https://starship.rs/presets/nerd-font) or [Tokyo Night](https://starship.rs/presets/tokyo-night)*
 

@@ -291,6 +291,28 @@ bespoke-appinstalls() {
             sudo tailscale set --operator=$USER
         fi
     fi
+    if [ "$INSTALLDISPLAYLINK" = true ]; then
+        echo -e "\n\033[1mInstalling DisplayLink drivers...\033[0m\n"
+        sleep 1
+        if [ "$VERSION_ID" = "40" ]; then
+            wget https://github.com/displaylink-rpm/displaylink-rpm/releases/download/v6.1.0-2/fedora-40-displaylink-1.14.7-4.github_evdi.x86_64.rpm -O ~/Downloads/fedora-40-displaylink-1.14.7-4.github_evdi.x86_64.rpm
+        elif [ "$VERSION_ID" = "41" ]; then
+            wget https://github.com/displaylink-rpm/displaylink-rpm/releases/download/v6.1.0-2/fedora-41-displaylink-1.14.7-4.github_evdi.x86_64.rpm -O ~/Downloads/fedora-41-displaylink-1.14.7-4.github_evdi.x86_64.rpm
+        fi
+        if [ "$ATOMICFEDORA" = true ]; then
+            if [ "$VERSION_ID" = "40" ]; then
+                sudo rpm-ostree install -y ~/Downloads/fedora-40-displaylink-1.14.7-4.github_evdi.x86_64.rpm
+            elif [ "$VERSION_ID" = "41" ]; then
+                sudo rpm-ostree install -y ~/Downloads/fedora-41-displaylink-1.14.7-4.github_evdi.x86_64.rpm
+            fi
+        else
+            if [ "$VERSION_ID" = "40" ]; then
+                sudo dnf install -y ~/Downloads/fedora-40-displaylink-1.14.7-4.github_evdi.x86_64.rpm
+            elif [ "$VERSION_ID" = "41" ]; then
+                sudo dnf install -y ~/Downloads/fedora-41-displaylink-1.14.7-4.github_evdi.x86_64.rpm
+            fi
+        fi
+    fi
 }
 
 # Start the script with the script's nice ASCII logo and a confirmation prompt
@@ -397,7 +419,7 @@ bespoke-options() {
     esac
 
 
-    echo -e "\n\n\nThis script includes the abiltiy to install the WireGuard-based networking suite\nfrom \033[92mTailscale\033[0m that integrates with both the Linux shell and your desktop\nenvironment.  You will be prompted during the script to login and add the node.\n"
+    echo -e "\n\n\nThis script includes the ability to install the WireGuard-based networking suite\nfrom \033[92mTailscale\033[0m that integrates with both the Linux shell and your desktop\nenvironment.  You will be prompted during the script to login and add the node.\n"
     read -n 1 -p "Do you want to install Tailscale? (y/n) " answer
     case ${answer:0:1} in
         y|Y )
@@ -405,6 +427,17 @@ bespoke-options() {
         ;;
         * )
             INSTALLTAILSCALE=false
+        ;;
+    esac
+
+    echo -e "\n\n\nIf you use a docking station that is not Thunderbolt-based, you may need the \033[92mDisplayLink\033[0m driver (a proprietary package) to use this device.\n"
+    read -n 1 -p "Do you want to install the DisplayLink driver? (y/n) " answer
+    case ${answer:0:1} in
+        y|Y )
+            INSTALLDISPLAYLINK=true
+        ;;
+        * )
+            INSTALLDISPLAYLINK=false
         ;;
     esac
 }
