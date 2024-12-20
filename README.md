@@ -30,9 +30,9 @@ This script is a quick, easy, and lazy way to make *Fedora Workstation* or *Fedo
 - Configures some optional Kernel Arguments
     - Offers to disable mitigations *(Intel 5th-9th Gen CPUs)*
 - Configures various GPU packages
-    - Offers to install `intel-media-driver` for 5th Gen or newer iGPUs
-    - Offers to install AMD drivers other than the `freeworld` packages
-    - Offers to install and configure Nvidia drivers, builds the support, and adds the boot arguments
+    - Offers to install `intel-media-driver` for 5th Gen or newer iGPUs (or supported dedicated Intel GPUs)
+    - Offers to install upgraded AMD iGPU or dedicated GPU drivers
+    - Offers to install and configure Nvidia drivers, builds the kernel support, and adds the required boot arguments
 - Installs `flathub` and `flathub-beta` to replace the `fedora` flatpak repositories
 - Adds the `topgrade` third party update tool and the `fedy` customization helper
 - Installs Google Chrome and LocalSend

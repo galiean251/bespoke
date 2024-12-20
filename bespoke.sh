@@ -65,20 +65,24 @@ bespoke-install() {
         fi
         if [ "$VERSION_ID" = "40" ]; then
             sudo dnf install -y dnf5 dnf5-plugins
-            sudo dnf group upgrade -y 'core' 'multimedia' 'sound-and-video' --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
-            sudo dnf swap 'ffmpeg-free' 'ffmpeg' --allowerasing
-            sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel ffmpeg gstreamer-ffmpeg
-            sudo dnf install -y lame\* --exclude=lame-devel
-            sudo dnf group upgrade -y --with-optional Multimedia
-            sudo dnf install -y ffmpeg ffmpeg-libs libva libva-utils
-            sudo dnf config-manager --set-enabled fedora-cisco-openh264
-            sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
-        elif [ "$VERSION_ID" = "40" ]; then
+            FWSOLDDNF="dnf"
+            FWSNEWDNF="dnf5"
+        elif [ "$VERSION_ID" = "41" ]; then
+            FWSOLDDNF="dnf4"
+            FWSNEWDNF="dnf"
         else
         echo -e "\n\033[34mERROR at bespoke-install\033[0m - Installing useful packages"
         echo -e "Script was not sure which version is running... \033[34mscript stopped.\033[0m\n"
         exit 1
         fi
+        sudo $FWSOLDDNF group upgrade -y 'core' 'multimedia' 'sound-and-video' --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
+        sudo $FWSOLDDNF swap 'ffmpeg-free' 'ffmpeg' --allowerasing
+        sudo $FWSOLDDNF install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel ffmpeg gstreamer-ffmpeg
+        sudo $FWSOLDDNF install -y lame\* --exclude=lame-devel
+        sudo $FWSOLDDNF group upgrade -y --with-optional Multimedia
+        sudo $FWSOLDDNF install -y ffmpeg ffmpeg-libs libva libva-utils
+        sudo $FWSOLDDNF config-manager --set-enabled fedora-cisco-openh264
+        sudo $FWSOLDDNF install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
     fi
     echo -e "\n\033[1mAdding some kernel arguments...\033[0m\n"
     sleep 3
@@ -99,20 +103,20 @@ bespoke-install() {
         echo -e "\n\033[3mConfiguring Intel drivers...\033[0m\n"
         sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
-            rpm-ostree override remove libva-intel-media-driver --install intel-media-driver
+            sudo rpm-ostree override remove libva-intel-media-driver --install intel-media-driver
         else
-            sudo dnf swap libva-intel-media-driver intel-media-driver --allowerasing
+            sudo $FWSNEWDNF swap libva-intel-media-driver intel-media-driver --allowerasing
         fi
     fi
     if [ "$AMDGPU" = true ]; then
         echo -e "\n\033[3mConfiguring AMD drivers...\033[0m\n"
         sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
-            rpm-ostree override remove mesa-va-drivers --install mesa-va-drivers-freeworld
-            rpm-ostree override remove mesa-vdpau-drivers --install mesa-vdpau-drivers-freeworld
+            sudo rpm-ostree override remove mesa-va-drivers --install mesa-va-drivers-freeworld
+            sudo rpm-ostree override remove mesa-vdpau-drivers --install mesa-vdpau-drivers-freeworld
         else
-            sudo dnf swap mesa-va-drivers mesa-va-drivers-freeworld
-            sudo dnf swap mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
+            sudo $FWSNEWDNF swap mesa-va-drivers mesa-va-drivers-freeworld
+            sudo $FWSNEWDNF swap mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
         fi
     fi
     if [ "$NVIDIAGPU" = true ]; then
@@ -122,7 +126,7 @@ bespoke-install() {
             sudo rpm-ostree install -y --apply-live akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-cuda
             sudo rpm-ostree kargs --append=rd.driver.blacklist=nouveau --append=modprobe.blacklist=nouveau --append=nvidia-drm.modeset=1
         else
-            sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-cuda
+            sudo $FWSNEWDNF install -y akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-cuda
             echo -e "\n\033[1;3mBuilding Graphics Driver Support (this takes 5 minutes)...\033[0m\n"
             sleep 300
             echo -e "\n\033[1;3mGraphics Driver Support has been built.\033[0m\n"
@@ -138,7 +142,7 @@ bespoke-install() {
     flatpak remote-modify --enable flathub
     flatpak install -y --reinstall flathub $(flatpak list --app-runtime=org.fedoraproject.Platform --columns=application | tail -n +1 )
     sleep 1
-    flatpak remote-add --user flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+    flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
     flatpak update
     if [ "$USERDESKTOP" = "gnome" ]; then
         flatpak install -y flathub com.mattjakeman.ExtensionManager
@@ -155,14 +159,15 @@ bespoke-install() {
             flatpak install -y flathub org.kde.kate
         fi
     else
-        sudo dnf install -y fedora-workstation-repositories
-        sudo dnf config-manager --set-enabled google-chrome
-        sudo dnf install -y google-chrome-stable flatseal deja-dup
+        sudo $FWSNEWDNF install -y fedora-workstation-repositories
+        sudo $FWSNEWDNF config-manager --set-enabled google-chrome
+        sudo $FWSNEWDNF install -y google-chrome-stable
+        sudo $FWSNEWDNF install -y flatseal deja-dup
         if [ "$USERDESKTOP" = "gnome" ]; then
-            sudo dnf install -y gnome-tweaks gnome-extensions-app
+            sudo $FWSNEWDNF install -y gnome-tweaks gnome-extensions-app
         fi
         if [ "$USERDESKTOP" = "kde" ]; then
-            sudo dnf install -y kate
+            sudo $FWSNEWDNF install -y kate
         fi
     fi
 }
@@ -176,7 +181,7 @@ bespoke-appinstalls() {
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub org.libreoffice.LibreOffice org.gnome.Evolution org.gnome.Geary
         else
-            sudo dnf install -y libreoffice geary evolution
+            sudo $FWSNEWDNF install -y libreoffice geary evolution
         fi
     fi
     if [ "$INSTALLMEDIA" = true ]; then
@@ -186,7 +191,7 @@ bespoke-appinstalls() {
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub io.github.celluloid_player.Celluloid org.videolan.VLC com.github.johnfactotum.Foliate
         else
-            sudo dnf install -y celluloid vlc yt-dlp foliate
+            sudo $FWSNEWDNF install -y celluloid vlc foliate
         fi
     fi
     if [ "$INSTALLCREATIVE" = true ]; then
@@ -196,7 +201,7 @@ bespoke-appinstalls() {
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub org.gimp.GIMP org.inkscape.Inkscape org.kde.krita org.darktable.Darktable net.scribus.Scribus org.fontforge.FontForge org.gnome.Shotwell nl.hjdskes.gcolor3 net.sourceforge.Hugin com.github.jeromerobert.pdfarranger
         else
-            sudo dnf install -y darktable gimp inkscape krita scribus fontforge shotwell gcolor3 hugin pdfarranger
+            sudo $FWSNEWDNF install -y darktable gimp inkscape krita scribus fontforge shotwell gcolor3 hugin pdfarranger
         fi
     fi
     if [ "$INSTALLVIDEO" = true ]; then
@@ -205,7 +210,7 @@ bespoke-appinstalls() {
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub org.blender.Blender org.kde.kdenlive com.obsproject.Studio org.openshot.OpenShot
         else
-            sudo dnf install -y blender kdenlive obs-studio openshot
+            sudo $FWSNEWDNF install -y blender kdenlive obs-studio openshot
         fi
     fi
     if [ "$INSTALLAUDIO" = true ]; then
@@ -215,7 +220,7 @@ bespoke-appinstalls() {
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub org.ardour.Ardour org.soundconverter.SoundConverter
         else
-            sudo dnf install -y ardour8 soundconverter gnome-sound-recorder
+            sudo $FWSNEWDNF install -y ardour8 soundconverter gnome-sound-recorder
         fi
     fi
     if [ "$INSTALLDEVELOPMENT" = true ]; then
@@ -227,8 +232,9 @@ bespoke-appinstalls() {
         else
             sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc && \
             sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo' && \
-            sudo dnf check-update && \
-            sudo dnf install -y code meld apostrophe
+            sudo $FWSNEWDNF check-update && \
+            sudo $FWSNEWDNF install -y code
+            sudo $FWSNEWDNF install -y meld apostrophe
         fi
     fi
     if [ "$INSTALLGIS" = true ]; then
@@ -237,7 +243,7 @@ bespoke-appinstalls() {
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub org.qgis.qgis com.gitlab.bitseater.meteo
         else
-            sudo dnf install -y qgis meteo
+            sudo $FWSNEWDNF install -y qgis meteo
         fi
     fi
     if [ "$INSTALLLLM" = true ]; then
@@ -251,27 +257,27 @@ bespoke-appinstalls() {
         if [ "$ATOMICFEDORA" = true ]; then
             flatpak install -y flathub com.valvesoftware.Steam io.github.sharkwouter.Minigalaxy net.lutris.Lutris org.winehq.Wine com.usebottles.bottles
         else
-            sudo dnf install -y steam minigalaxy lutris wine bottles gamemode gamescope
+            sudo $FWSNEWDNF install -y steam minigalaxy lutris wine bottles gamemode gamescope
         fi
     fi
     if [ "$INSTALLSHARING" = true ]; then
         echo -e "\n\033[1mInstalling Dropbox packages...\033[0m\n"
         sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
-            rpm-ostree install -y --apply-live dropbox nautilus-dropbox
+            sudo rpm-ostree install -y --apply-live dropbox nautilus-dropbox
         else
-            sudo dnf install -y dropbox nautilus-dropbox
+            sudo $FWSNEWDNF install -y dropbox nautilus-dropbox
         fi
     fi
     if [ "$INSTALLCONTAINER" = true ]; then
         echo -e "\n\033[1mInstalling container and image management packages...\033[0m\n"
         sleep 1
         if [ "$ATOMICFEDORA" = true ]; then
-            rpm-ostree install podman-docker docker-compose
+            sudo rpm-ostree install -y podman-docker docker-compose
         else
-            sudo dnf install -y podman toolbox podman-docker docker-compose
+            sudo $FWSNEWDNF install -y podman toolbox podman-docker docker-compose
         fi
-        flatpak install -y flathub io.podman_desktop.PodmanDesktop com.github.marhkb.Pods
+        flatpak install -y flathub io.podman_desktop.PodmanDesktop
     fi
     if [ "$INSTALLTAILSCALE" = true ]; then
         echo -e "\n\033[1mInstalling Tailscale...\033[0m\n"
@@ -280,13 +286,13 @@ bespoke-appinstalls() {
             sudo curl -s https://pkgs.tailscale.com/stable/fedora/tailscale.repo -o /etc/yum.repos.d/tailscale.repo > /dev/null
             sudo wget https://pkgs.tailscale.com/stable/fedora/repo.gpg -O /etc/pki/rpm-gpg/tailscale.gpg
             sudo sed -i 's\"https://pkgs.tailscale.com/stable/fedora/repo.gpg"\file:///etc/pki/rpm-gpg/tailscale.gpg\' /etc/yum.repos.d/tailscale.repo
-            rpm-ostree install --apply-live tailscale
+            sudo rpm-ostree install -y --apply-live tailscale
             sudo systemctl enable --now tailscaled
             sudo tailscale up
             sudo tailscale set --operator=$USER
         else
-            sudo dnf config-manager --add-repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-            sudo dnf install -y tailscale
+            sudo $FWSOLDDNF config-manager --add-repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+            sudo $FWSOLDDNF install -y tailscale
             sudo systemctl enable --now tailscaled
             sudo tailscale up
             sudo tailscale set --operator=$USER
@@ -295,23 +301,11 @@ bespoke-appinstalls() {
     if [ "$INSTALLDISPLAYLINK" = true ]; then
         echo -e "\n\033[1mInstalling DisplayLink drivers...\033[0m\n"
         sleep 1
-        if [ "$VERSION_ID" = "40" ]; then
-            wget https://github.com/displaylink-rpm/displaylink-rpm/releases/download/v6.1.0-2/fedora-40-displaylink-1.14.7-4.github_evdi.x86_64.rpm -O ~/Downloads/fedora-40-displaylink-1.14.7-4.github_evdi.x86_64.rpm
-        elif [ "$VERSION_ID" = "41" ]; then
-            wget https://github.com/displaylink-rpm/displaylink-rpm/releases/download/v6.1.0-2/fedora-41-displaylink-1.14.7-4.github_evdi.x86_64.rpm -O ~/Downloads/fedora-41-displaylink-1.14.7-4.github_evdi.x86_64.rpm
-        fi
+        wget https://github.com/displaylink-rpm/displaylink-rpm/releases/download/v6.1.0-2/fedora-$VERSION_ID-displaylink-1.14.7-4.github_evdi.x86_64.rpm -O ~/Downloads/fedora-$VERSION_ID-displaylink-1.14.7-4.github_evdi.x86_64.rpm
         if [ "$ATOMICFEDORA" = true ]; then
-            if [ "$VERSION_ID" = "40" ]; then
-                sudo rpm-ostree install -y ~/Downloads/fedora-40-displaylink-1.14.7-4.github_evdi.x86_64.rpm
-            elif [ "$VERSION_ID" = "41" ]; then
-                sudo rpm-ostree install -y ~/Downloads/fedora-41-displaylink-1.14.7-4.github_evdi.x86_64.rpm
-            fi
+            sudo rpm-ostree install -y ~/Downloads/fedora-$VERSION_ID-displaylink-1.14.7-4.github_evdi.x86_64.rpm
         else
-            if [ "$VERSION_ID" = "40" ]; then
-                sudo dnf install -y ~/Downloads/fedora-40-displaylink-1.14.7-4.github_evdi.x86_64.rpm
-            elif [ "$VERSION_ID" = "41" ]; then
-                sudo dnf install -y ~/Downloads/fedora-41-displaylink-1.14.7-4.github_evdi.x86_64.rpm
-            fi
+            sudo $FWSNEWDNF install -y ~/Downloads/fedora-$VERSION_ID-displaylink-1.14.7-4.github_evdi.x86_64.rpm
         fi
     fi
 }
