@@ -34,7 +34,7 @@ This script is a quick, easy, and lazy way to make *Fedora Workstation* or *Fedo
     - Offers to install AMD drivers other than the `freeworld` packages
     - Offers to install and configure Nvidia drivers, builds the support, and adds the boot arguments
 - Installs `flathub` and `flathub-beta` to replace the `fedora` flatpak repositories
-- Adds the `topgrade` third party update tool
+- Adds the `topgrade` third party update tool and the `fedy` customization helper
 - Installs Google Chrome and LocalSend
 - Installs the GNOME Extension Manager and GNOME Tweaks *(if **GNOME** is the current environment)*
 - Installs the 'kate' Advanced Text Editor *(if **KDE** is the current environment)*
@@ -52,8 +52,9 @@ This script is a quick, easy, and lazy way to make *Fedora Workstation* or *Fedo
     - Dropbox (with the Nautilus/Files Integration)
     - Tailscale (and enabling it during setup)
 - Option to install DisplayLink drivers from the `displaylink-rpm` project on [GitHub](https://github.com/displaylink-rpm/displaylink-rpm)
+- Installs the [Dracula](https://draculatheme.com/) theme for GNOME Installations
 - Installs the [Starship](https://starship.rs/) prompt customization tool and enables the [No Nerd Fonts](https://starship.rs/presets/no-nerd-font#no-nerd-fonts-preset) preset
-	- **Note:** *I only did this to avoid loading up installations with massive downloads from [Nerd Fonts](https://www.nerdfonts.com/), but I'd encourage you add your favorite (I've been using JetBrains, Fira, or Ubuntu here and there) and then use a preset such as [Nerd Font Symbols](https://starship.rs/presets/nerd-font) or [Tokyo Night](https://starship.rs/presets/tokyo-night)*
+	- **Note:** *I only did this to avoid loading up installations with massive downloads from [Nerd Fonts](https://www.nerdfonts.com/), but I'd encourage you add your favorite and then use a preset such as [Nerd Font Symbols](https://starship.rs/presets/nerd-font) or [Tokyo Night](https://starship.rs/presets/tokyo-night)*
 
 ## Using Debian?
 

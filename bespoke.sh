@@ -34,15 +34,16 @@ bespoke-install() {
     sudo fwupdmgr refresh --force
     sudo fwupdmgr get-updates
     sudo fwupdmgr update -y
-    echo -e "\n\033[1mAdding some community repositories before we begin...\033[0m\n"
+    echo -e "\n\033[1mAdding the community repository for Topgrade...\033[0m\n"
     sleep 3
     if [ "$ATOMICFEDORA" = true ]; then
-        sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/lilay/topgrade/repo/fedora-40/lilay-topgrade-fedora-$VERSION_ID.repo
+        sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/lilay/topgrade/repo/fedora-$VERSION_ID/lilay-topgrade-fedora-$VERSION_ID.repo
+        sudo rpm-ostree cleanup -m
         sudo rpm-ostree refresh-md
+        sudo rpm-ostree install -y topgrade
     else
         sudo dnf copr enable lilay/topgrade
-        sudo dnf update
-        sudo dnf upgrade --refresh
+        sudo dnf install -y topgrade
     fi
     echo -e "\n\033[1mInstalling RPM Fusion and useful base packages...\033[0m\n"
     sleep 3
@@ -72,6 +73,11 @@ bespoke-install() {
             sudo dnf install -y ffmpeg ffmpeg-libs libva libva-utils
             sudo dnf config-manager --set-enabled fedora-cisco-openh264
             sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
+        elif [ "$VERSION_ID" = "40" ]; then
+        else
+        echo -e "\n\033[34mERROR at bespoke-install\033[0m - Installing useful packages"
+        echo -e "Script was not sure which version is running... \033[34mscript stopped.\033[0m\n"
+        exit 1
         fi
     fi
     echo -e "\n\033[1mAdding some kernel arguments...\033[0m\n"
@@ -602,13 +608,32 @@ bespoke-version() {
 # Adding useful third party DNF repositories and tools to both Regular and Atomic Fedora versions
 bespoke-repos() {
     if [ "$ATOMICFEDORA" = true ]; then
+        sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/kwizart/fedy/repo/fedora-$VERSION_ID/kwizart-fedy-fedora-$VERSION_ID.repo
         sudo rpm-ostree refresh-md
-        sudo rpm-ostree reload
-        sudo rpm-ostree install -y topgrade fedy
+        sudo rpm-ostree install -y fedy
     else
-        sudo dnf install -y topgrade fedy
+        sudo dnf copr enable kwizart/fedy
+        sudo dnf install -y fedy
     fi
 }
+
+# Install the Dracula GNOME theme https://draculatheme.com/
+bespoke-dracula() {
+    if [ "$USERDESKTOP" = "gnome" ]; then
+        echo -e "\nInstalling the \033[95mDracula\033[0m GNOME theme...\n"
+        sleep 1
+        if [ "$ATOMICFEDORA" = true ]; then
+            sudo git clone https://github.com/dracula/gtk.git ~/.themes/Dracula
+            gsettings set org.gnome.desktop.interface gtk-theme 'Dracula'
+            gsettings set org.gnome.desktop.wm.preferences theme 'Dracula'
+        else
+            sudo git clone https://github.com/dracula/gtk.git /usr/share/themes/Dracula
+            gsettings set org.gnome.desktop.interface gtk-theme 'Dracula'
+            gsettings set org.gnome.desktop.wm.preferences theme 'Dracula'
+        fi
+    fi
+}
+
 # Install shell enhancements from Starship (https://starship.rs/) and activate the No Nerd Fonts preset (https://starship.rs/presets/no-nerd-font)
 bespoke-starship() {
     echo -e "\nInstalling enhancements to default Bash shell with \033[95mStarship\033[0m...\n"
@@ -649,6 +674,7 @@ bespoke-appoptions
 bespoke-install
 bespoke-appinstalls
 bespoke-repos
+bespoke-dracula
 bespoke-starship
 
 if [ "$USERDESKTOP" = "gnome" ]; then
