@@ -441,7 +441,7 @@ bespoke-options() {
 bespoke-appoptions() {
     if [ "$INSTALLAPPS" = true ]; then
         echo -e "\n\n\nDo you want to install \033[92moffice and messaging\033[0m applications?"
-        read -n 1 -p "LibreOffice, Email Apps, Discord, and Slack - (y/n) " answer
+        read -n 1 -p "LibreOffice, Email, Discord, Slack, and Zoom - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
                 INSTALLOFFICE=true
@@ -452,7 +452,7 @@ bespoke-appoptions() {
         esac
 
         echo -e "\n\n\nDo you want to install \033[92mpersonal multimedia\033[0m applications?"
-        read -n 1 -p "Celluloid, VLC, and more - (y/n) " answer
+        read -n 1 -p "Celluloid, Foliate, and VLC - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
                 INSTALLMEDIA=true
@@ -463,7 +463,7 @@ bespoke-appoptions() {
         esac
 
         echo -e "\n\n\nDo you want to install \033[92mcreative design\033[0m applications?"
-        read -n 1 -p "Darktable, GIMP, Inkscape, Krita, and more - (y/n) " answer
+        read -n 1 -p "Darktable, GIMP, Inkscape, Krita, and Scribus - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
                 INSTALLCREATIVE=true
@@ -485,7 +485,7 @@ bespoke-appoptions() {
         esac
 
         echo -e "\n\n\nDo you want to install \033[92maudio production\033[0m applications?"
-        read -n 1 -p "Ardour, MuseScore, Tenacity, and more - (y/n) " answer
+        read -n 1 -p "Ardour, Tenacity, and Sound Utilities - (y/n) " answer
         case ${answer:0:1} in
             y|Y )
                 INSTALLAUDIO=true
@@ -496,7 +496,7 @@ bespoke-appoptions() {
         esac
 
         echo -e "\n\n\nDo you want to install \033[92mcoding tools and development\033[0m applications?"
-        read -n 1 -p "Android Studio, Pulsar, Obsidian, and Visual Studio Code (y/n) " answer
+        read -n 1 -p "Android Studio, Obsidian, Pulsar, and Visual Studio Code (y/n) " answer
         case ${answer:0:1} in
             y|Y )
                 INSTALLDEVELOPMENT=true
@@ -529,7 +529,7 @@ bespoke-appoptions() {
         esac
 
         echo -e "\n\n\nDo you want to install \033[92mgaming platforms\033[0m and packages?"
-        read -n 1 -p "Steam, Lutris, Wine, Bottles, and more (y/n) " answer
+        read -n 1 -p "Steam, Lutris, Bottles, and Wine (y/n) " answer
         case ${answer:0:1} in
             y|Y )
                 INSTALLGAMING=true
