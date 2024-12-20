@@ -38,11 +38,9 @@ bespoke-install() {
     sleep 3
     if [ "$ATOMICFEDORA" = true ]; then
         sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/lilay/topgrade/repo/fedora-40/lilay-topgrade-fedora-$VERSION_ID.repo
-        sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/kwizart/fedy/repo/fedora-40/kwizart-fedy-fedora-$VERSION_ID.repo
         sudo rpm-ostree refresh-md
     else
         sudo dnf copr enable lilay/topgrade
-        sudo dnf copr enable kwizart/fedy
         sudo dnf update
         sudo dnf upgrade --refresh
     fi
@@ -51,13 +49,19 @@ bespoke-install() {
     if [ "$ATOMICFEDORA" = true ]; then
         sudo rpm-ostree install -y --apply-live https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
         sudo rpm-ostree update --uninstall $(rpm -q rpmfusion-free-release) --uninstall $(rpm -q rpmfusion-nonfree-release) --install rpmfusion-free-release --install rpmfusion-nonfree-release
-        sudo rpm-ostree install -y --apply-live --allow-inactive distrobox stacer rclone lm_sensors p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat curl wget zsh libavcodec-freeworld grubby
+        sudo rpm-ostree install -y --apply-live --allow-inactive distrobox stacer rclone lm_sensors p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer  heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat curl wget zsh libavcodec-freeworld grubby
         sudo rpm-ostree install -y --apply-live --allow-inactive pwgen 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts julietaula-montserrat-fonts
+        if [ "$USERDESKTOP" = "gnome" ]; then
+            sudo rpm-ostree install -y gnome-tweak-tool adw-gtk3-theme
+        fi
     else
         sudo rpm -Uvh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
         sudo rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-        sudo dnf install -y distrobox stacer rclone lm_sensors unzip p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer gnome-tweak-tool adw-gtk3-theme heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat curl wget zsh libavcodec-freeworld grubby
+        sudo dnf install -y distrobox stacer rclone lm_sensors unzip p7zip p7zip-plugins unrar timeshift ffmpegthumbnailer  heif-pixbuf-loader libheif-freeworld libheif-tools pipewire-codec-aptx fastfetch make automake gcc gcc-c++ kernel-devel bwm-ng git htop iftop iotop nano net-tools redhat-rpm-config ruby ruby-devel sysbench sysstat util-linux-user vnstat curl wget zsh libavcodec-freeworld grubby
         sudo dnf install -y pwgen gpg 'google-roboto*' 'mozilla-fira*' fira-code-fonts fontawesome-fonts rsms-inter-fonts aajohan-comfortaa-fonts adobe-source-sans-pro-fonts astigmatic-grand-hotel-fonts campivisivi-titillium-fonts lato-fonts open-sans-fonts overpass-fonts redhat-display-fonts redhat-text-fonts typetype-molot-fonts julietaula-montserrat-fonts
+        if [ "$USERDESKTOP" = "gnome" ]; then
+            sudo dnf install -y gnome-tweak-tool adw-gtk3-theme
+        fi
         if [ "$VERSION_ID" = "40" ]; then
             sudo dnf install -y dnf5 dnf5-plugins
             sudo dnf group upgrade -y 'core' 'multimedia' 'sound-and-video' --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
@@ -167,15 +171,6 @@ bespoke-appinstalls() {
             flatpak install -y flathub org.libreoffice.LibreOffice org.gnome.Evolution org.gnome.Geary
         else
             sudo dnf install -y libreoffice geary evolution
-        fi
-    fi
-    if [ "$INSTALLPRODUCTIVITY" = true ]; then
-        echo -e "\n\033[1mInstalling productivity applications...\033[0m\n"
-        sleep 1
-        if [ "$ATOMICFEDORA" = true ]; then
-            flatpak install -y flathub org.gnucash.GnuCash org.kde.okular com.calibre_ebook.calibre
-        else
-            sudo dnf install -y gnucash okular calibre
         fi
     fi
     if [ "$INSTALLMEDIA" = true ]; then
@@ -456,17 +451,6 @@ bespoke-appoptions() {
             ;;
         esac
 
-        echo -e "\n\n\nDo you want to install \033[92productivity\033[0m applications?"
-        read -n 1 -p "GnuCash, Okular, and Calibre - (y/n) " answer
-        case ${answer:0:1} in
-            y|Y )
-                INSTALLOFFICE=true
-            ;;
-            * )
-                INSTALLOFFICE=false
-            ;;
-        esac
-
         echo -e "\n\n\nDo you want to install \033[92mpersonal multimedia\033[0m applications?"
         read -n 1 -p "Celluloid, VLC, and more - (y/n) " answer
         case ${answer:0:1} in
@@ -559,7 +543,6 @@ bespoke-appoptions() {
         INSTALLMEDIA=false
         INSTALLCREATIVE=false
         INSTALLVIDEO=false
-        INSTALLDAVINCI=false
         INSTALLAUDIO=false
         INSTALLDEVELOPMENT=false
         INSTALLGIS=false
@@ -676,6 +659,8 @@ if [ "$USERDESKTOP" = "gnome" ]; then
 
 fi
 
+echo -e "\n"
+fastfetch
 echo -e "\n\nThe script has now completed and it is recommended to reboot the device.\n"
 sleep 1
 read -n 1 -p "Do you want to restart now? (y/n) " answer

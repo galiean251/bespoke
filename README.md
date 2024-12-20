@@ -4,19 +4,20 @@
 
 ## About the Script
 
-I wrote this as a quick and easy way to make *Fedora Workstation* or *Fedora Silverblue* setup for my own use quickly and easily.  The script will ask questions about which applications or packages to install, but it's much more trimmed down then using `dnf` groups.  For the Atomic users, I layer a number of packages into `rpm-ostree` to help the immutable distribution behave like the standard desktop.
+This script is a quick, easy, and lazy way to make *Fedora Workstation* or *Fedora Silverblue* a little more the way I like it - not a complete remodel like Ultramarine, Nobara, or uBlue... just a little bit of spice on top of the vanilla installation.  The script will ask questions about which applications or packages to install, but it's much more trimmed down then using `dnf` groups.  For the Atomic users, I layer a number of packages into `rpm-ostree` to help the immutable distribution behave like the standard desktop without the need for containers.
 
 ## Why not ... (insert other option here)?
 
-- Short answer: because it works and it's "old habit" for me.
-- Long answer: because I don't want to get into making something like a playbook for simple setups, especially when I'm just playing with a hardware repair or refurbishing an old PC.
+- Short answer: because it works.
+- Long answer: because making something like a playbook for simple setups, especially when I'm just playing around, seems like overkill.
 
-## How to use this script
+## How I use this script
 
-- Clone the repository using the command `git clone https://github.com/seangalie/bespoke ~/.bespoke`
+- First, clone the repository using the command `git clone https://github.com/seangalie/bespoke ~/.bespoke`
 - Switch into the cloned directory using `cd ~/.bespoke/`
 - Remember to make the script executable with `chmod +x bespoke.sh`
 - Run the script `./bespoke.sh`
+- When I'm done, I can deleted the `~/.bespoke` directory
 
 ## What does the script do?
 
@@ -33,13 +34,12 @@ I wrote this as a quick and easy way to make *Fedora Workstation* or *Fedora Sil
     - Offers to install AMD drivers other than the `freeworld` packages
     - Offers to install and configure Nvidia drivers, builds the support, and adds the boot arguments
 - Installs `flathub` and `flathub-beta` to replace the `fedora` flatpak repositories
-- Adds the `fedy` and `topgrade` third party repositories
+- Adds the `topgrade` third party update tool
 - Installs Google Chrome and LocalSend
 - Installs the GNOME Extension Manager and GNOME Tweaks *(if **GNOME** is the current environment)*
 - Installs the 'kate' Advanced Text Editor *(if **KDE** is the current environment)*
 - Offers to install batches of Applications or Useful Tools
     - Office and Messaging (LibreOffice, Geary, Evolution, Betterbird, Discord, Slack, and Zoom)
-    - Productivity (Calibre, GNUCash, and Okular)
     - Creative Design (GIMP, Inkscape, Krita, Darktable, Scribus, FontForge, Shotwell, GColor, Hugin, PDF Arranger, Conjure, and Upscaler)
     - 3D and Video Production (Blender, Kdenlive, OBS Studio, and OpenShot)
     - Audio Production (Ardour, Tenacity, Sound Converter, and Sound Recorder)
